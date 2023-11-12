@@ -11,6 +11,9 @@
     gtag('config', 'UA-19232737-1');
   </script>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -29,44 +32,39 @@
 
   <!-- Bootstrap core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+  <!-- Bootstrap icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 </head>
 
 <body>
   <div class="container">
-
     <div class="jumbotron">
       <div class="row">
-        <div class="col-lg-6">
-          <img src="https://media.giphy.com/media/LSLULUcKsKw1NWVbfU/giphy.gif" class="img-responsive">
+        <div class="col-lg-4">
+          <img src="bill-heil-headshot.jpg" class="img-responsive">
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-8">
           <h1>Bill Heil</h1>
-          <p class="lead">Tech advisor, comic, volunteer. Based in Berkeley</p>
+          <p class="lead">Comic and tech guy. Based in Berkeley, CA.</p>
+            <a href="https://www.instagram.com/billheil/"><i class="bi bi-instagram" style="font-size: 6rem; "></i></a>
+            <a href="https://www.facebook.com/billheil"><i class="bi bi-facebook" style="font-size: 6rem; "></i></a>
+            <a href="https://www.twitter.com/billheil"><i class="bi bi-twitter" style="font-size: 6rem; "></i></a>
+            <a href="https://www.linkedin.com/in/billheil/"><i class="bi bi-linkedin" style="font-size: 6rem; "></i></a>
         </div>
       </div>
     </div><!-- jumbotron -->
 
-    <div class="row marketing">
-      <div class="col-lg-4">
-        <h4>Comedy socials</h4>
-        <p><a href="https://www.instagram.com/billheil/">Instagram</a></p>
-        <p><a href="https://www.facebook.com/billheil">Facebook</a></p>
-        <p><a href="https://www.twitter.com/billheil">Twitter</a></p>
-      </div>
-      <div class="col-lg-4">
-       <h4>Products I've shipped</h4>
-        <p><a href="https://biz.yelp.com/">Yelp for Business</a></p>
-        <p><a href="https://biz.yelp.com/advertise">Yelp Ads</a></p>
-        <p>More on <a href="https://www.linkedin.com/in/billheil/">LinkedIn</a></p>
-      </div>
-      <div class="col-lg-4">
-       <h4>For fun</h4>
-        <p><a href="https://www.amazon.com/Project-Leviathan-Sweet-Air/dp/B08LH7HWJ3">Sweet Air</a> <small>(hobby Alexa skill)</small></p>
-        <p><a href="https://hbr.org/2009/06/new-twitter-research-men-follo">Gender and Twitter study for Harvard Business Review</a></p>
-        <p><a href="https://www.hbs.edu/faculty/Pages/item.aspx?num=38303">Twitter Case for Harvard Business School</a></p>
-      </div>
-
-    </div><!-- marketing row -->
+    <div class="col">
+        <h3>Comedy Shows</h3>
+            <table style="width: 90vw; margin: auto;" class="table"> 
+                <thead> 
+                    <tr id="tableHeader"> 
+                    </tr> 
+                </thead> 
+                <tbody id="tableBody"> 
+                </tbody> 
+            </table>
+    </div><!-- /table -->
   </div><!-- /container -->
 
   <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
@@ -74,6 +72,71 @@
   <!-- Include all compiled plugins (below), or include individual files as needed -->
   <!-- Latest compiled and minified JavaScript -->
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+
+  <script>
+    url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0N69Gf5EdrfyOFEuUwWjYpKr_DfpwDh-qpx-2xxGx9VKjfGOWrtPJAKNugIANj_abfdc0Zhd833CA/pub?gid=0&single=true&output=csv'
+
+    function isValidHttpUrl(string) {
+        let url;  
+          try {
+            url = new URL(string);
+          } catch (_) {
+            return false;  
+          }
+          return url.protocol === "http:" || url.protocol === "https:";
+    }
+
+    function createDataElement(htmlTag, innerText, idParent) { 
+        let node = document.createElement(htmlTag);
+
+        let textnode;
+
+        if(isValidHttpUrl(innerText)) {
+            textnode = document.createElement('a');
+            textnode.setAttribute('href',innerText);
+            textnode.innerHTML = "Tickets";
+        } else {
+            textnode = document.createTextNode(innerText);             
+        }
+        node.appendChild(textnode); 
+        document.getElementById(idParent).appendChild(node); 
+    }
+
+    function createHeaderElement(columnText) { 
+        createDataElement("th", columnText, "tableHeader"); 
+    }
+
+    function createCellData(rowIndex, dataIndex, cellText) { 
+        if(dataIndex === 0) { 
+            let node = document.createElement("tr"); 
+            node.setAttribute("id", "row" + rowIndex); 
+            document.getElementById("tableBody").appendChild(node);
+            createDataElement("td", cellText, "row" + rowIndex);
+        } else { 
+            createDataElement("td", cellText, "row" + rowIndex); 
+        } 
+    }
+
+
+    Papa.parse(url, { 
+        download: true,
+        complete: function(results) { 
+            for(let i = 0; i < results.data.length; i++) { 
+                if(i === 0) { 
+                    for(let j = 0; j < results.data[i].length; j++) { 
+                        createHeaderElement(results.data[i][j]); 
+                    } 
+                } 
+                if(i > 0) { 
+                    for(let j = 0; j < results.data[i].length; j++) { 
+                        createCellData(i, j, results.data[i][j]); 
+                } 
+             } 
+           } 
+        } 
+    });
+  </script>
 
 </body>
 </html>
