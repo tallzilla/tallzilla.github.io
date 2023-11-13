@@ -101,6 +101,10 @@
   <!-- Script to async handle form submission -->
   <script>
     $('#subscribeForm').submit( function() {
+        console.log("here");
+        if($('#email').val() == '') {
+            return false;
+        }
         $.ajax({
             url: 'https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec',
             type: 'post',
@@ -120,6 +124,7 @@
   <script>
     url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0N69Gf5EdrfyOFEuUwWjYpKr_DfpwDh-qpx-2xxGx9VKjfGOWrtPJAKNugIANj_abfdc0Zhd833CA/pub?gid=0&single=true&output=csv'
 
+    // Simple function to validate if text in calendar is a valid URL
     function isValidHttpUrl(string) {
         let url;  
           try {
@@ -135,6 +140,7 @@
 
         let textnode;
 
+        //If we have a valid url in the calendar, HTML-enclose it
         if(isValidHttpUrl(innerText)) {
             textnode = document.createElement('a');
             textnode.setAttribute('href',innerText);
