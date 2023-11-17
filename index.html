@@ -39,7 +39,10 @@
 <link rel="manifest" href="/site.webmanifest">
 
 <!-- Bootstrap core CSS -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+<link href="/css/custom.css" rel="stylesheet">
+
+
 <!-- Bootstrap icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 <!-- Papaparse for Google Sheets CSV -->
@@ -48,54 +51,57 @@
 
 <body>
 <div class="container-fluid p-0"> <!-- page container -->
-    <div class="container-fluid p-3 text-center bg-body-tertiary rounded-3 "><!-- jumbotron container -->
+    <div class="container-fluid p-0 m-0 text-center bg-body-tertiary"><!-- jumbotron container -->
         <div class="container-md"> <!-- container for headshot and bio -->
-            <div class = "row">
-                <div class="col-md-5">
-                  <img src="bill-heil-headshot.jpg" class="img-fluid" alt="Bill Heil headshot, 2023">
-                </div> <!--/image column -->
-                <div class="col-sm-7 p-5"> <!-- column with name and bio -->
-                    <h1 class="text-body-emphasis">Bill Heil</h1>
-                    <p class="col-lg-8 mx-auto fs-5 m-0 text-muted">
-                        Comic and tech guy. Based in Berkeley, CA.
+            <div class = "row align-items-center">
+                <div class="col-md-7 p-3"> <!-- column with name and bio -->
+                    <h1 class="text-body-tertiary">Bill Heil</h1>
+                    <p class="col-lg-8 mx-auto fs-5 m-0 text-body-tertiary">
+                        Comic and tech guy. Based in Berkeley.
                     </p>
                     <div class="d-inline-flex gap-3 p-2">
-                        <a href="https://www.instagram.com/billheil/"><i class="bi bi-instagram primary" style="font-size: 2rem;"></i></a>
-                        <a href="https://www.facebook.com/billheil"><i class="bi bi-facebook primary" style="font-size: 2rem;"></i></a>
-                        <a href="https://www.twitter.com/billheil"><i class="bi bi-twitter primary" style="font-size: 2rem;"></i></a>
-                        <a href="https://www.linkedin.com/in/billheil/"><i class="bi bi-linkedin primary" style="font-size: 2rem;"></i></a>
-                        <a href="mailto:booking@billheil.com"><i class="bi bi-envelope-at primary" style="font-size: 2rem;"></i></a>
-                    </div>
-
-                    <p class="text-muted m-1">Want emails about shows?</p>
-
-                    <div class="d-flex gap-3 justify-content-center"> <!-- inline email subscription form -->
-                        <form class="row row-cols-lg-auto g-3 align-items-center" id="subscribeForm" action="javascript:void(0);">
-                        <!--form class="row row-cols-lg-auto g-3 align-items-center" method="POST" action="https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec"-->
-                        <!--legend class="text-muted g-4" style="font-size: 1rem;">Want emails about shows?</legend>-->
-                        <div class="col-12">
-                            <div class="input-group">
-                                <label class="visually-hidden" for="email">Email</label>
-                                <input type="email" class="form-control" id="email" placeholder="funny@haha.com" name="Email" autocomplete="on">
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-primary" id="subscribeButton">Subscribe</button>
-                        </div>
-                        </form>
-                    </div> <!-- inline email subscription form -->
-                    <div id="submitSuccess" class="col-12 text-success" style="display: none;">
-                        Thanks, you've subscribed!
-                    </div>
-                    <div id="submitFailure" class="col-12 text-danger" style="display: none;">
-                        Sorry, something went wrong!
+                        <a href="https://www.instagram.com/billheil/"><i class="bi bi-instagram text-body-tertiary" style="font-size: 2rem;"></i></a>
+                        <a href="https://www.facebook.com/billheil"><i class="bi bi-facebook text-body-tertiary" style="font-size: 2rem;"></i></a>
+                        <a href="https://www.twitter.com/billheil"><i class="bi bi-twitter text-body-tertiary" style="font-size: 2rem;"></i></a>
+                        <a href="https://www.linkedin.com/in/billheil/"><i class="bi bi-linkedin text-body-tertiary" style="font-size: 2rem;"></i></a>
+                        <a href="mailto:booking@billheil.com"><i class="bi bi-envelope-at text-body-tertiary" style="font-size: 2rem;"></i></a>
                     </div>
                 </div> <!-- column with name and info -->
+                <div class="col-md-5">
+                  <img src="bill-heil-headshot.png" class="img-fluid" alt="Bill Heil headshot, 2023">
+                </div> <!--/image column -->
+
             </div> <!-- jumbotron content -->
         </div> <!-- jumbotron headshot and bio -->
     </div> <!-- jumbotron container -->
+    <div class="container-fluid p-3 bg-body-secondary">
+        <div class="container-md"> <!-- container for headshot and bio -->
+            <h3>Want emails about shows?</h3>
+            <div class="d-flex gap-3"> <!-- inline email subscription form -->
+                <form class="row row-cols-lg-auto g-3 align-items-center" id="subscribeForm" action="javascript:void(0);">
+                    <!--form class="row row-cols-lg-auto g-3 align-items-center" method="POST" action="https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec"-->
+                    <!--legend class="text-muted g-4" style="font-size: 1rem;">Want emails about shows?</legend>-->
+                    <div class="col-12">
+                        <div class="input-group">
+                            <label class="visually-hidden" for="email">Email</label>
+                            <input type="email" class="form-control bg-light-subtle text-emphasis" id="email" placeholder="funny@haha.com" name="Email" autocomplete="on">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="subscribeButton">Subscribe</button>
+                    </div>
+                </form>
+            </div> <!-- inline email subscription form -->
+            <div id="submitSuccess" class="col-12 text-success" style="display: none;">
+                Thanks, you've subscribed!
+            </div>
+            <div id="submitFailure" class="col-12 text-danger" style="display: none;">
+                Sorry, something went wrong!
+            </div>
+        </div>
+    </div>
     <div class="container p-3">
-        <h2>Showtimes and Tickets</h2>
+        <h3>Showtimes and Tickets</h3>
             <table class="table"> 
             <thead> 
                 <tr id="tableHeader"> </tr> 
@@ -109,7 +115,7 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <!-- Latest compiled and minified JavaScript -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+<script src="/bootstrap/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
 <!-- Script to async handle form submission -->
 <script>
