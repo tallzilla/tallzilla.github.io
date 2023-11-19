@@ -88,7 +88,10 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <button type="submit" class="btn btn-primary" id="subscribeButton">Subscribe</button>
+
+                        <button type="submit" class="btn btn-primary" id="subscribeButton">
+                        <span id="subscribeSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                        Subscribe</button>
                     </div>
                 </form>
             </div> <!-- inline email subscription form -->
@@ -124,6 +127,7 @@
         if($('#email').val() == '') {
             return false;
         }
+        $('#subscribeSpinner').show();
         $.ajax({
             url: 'https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec',
             type: 'post',
@@ -132,9 +136,11 @@
             success: function(data) {
                 console.log('here');
                 $('#submitSuccess').show();
+                $('#subscribeSpinner').hide();
             },
             error: function(data) {
                 $('#submitFailure').show();
+                $('#subscribeSpinner').hide();
             }
         });
     });
