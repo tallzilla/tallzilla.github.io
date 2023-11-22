@@ -10,8 +10,10 @@
 $body-tertiary-bg-dark: #60b0c7;
 $body-tertiary-color-dark: #232B2B;
 
-$body-secondary-bg-dark: #2b3035;
-$body-secondary-color: #ff0000;
+.btn-primary, .btn-primary:hover, .btn-primary:active, .btn-primary:visited {
+    background-color: #6153CC !important;
+    border-color: #6153CC !important;
+}
 
 // 3. Include remainder of required Bootstrap stylesheets (including any separate color mode stylesheets)
 @import "../bootstrap/scss/variables";
