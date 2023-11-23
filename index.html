@@ -1,207 +1,207 @@
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
-<head>
-    <!-- Bootstrap tags - The below 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <head>
+        <!-- Bootstrap tags - The below 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-19232737-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'UA-19232737-1');
-    </script>
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-19232737-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-19232737-1');
+        </script>
 
-    <meta name="description" content="Homepage for Bill Heil, a comic and tech guy living in Berkeley, CA. This page contains social media links and upcoming shows.">
-    <meta name="author" content="Bill Heil">
+        <meta name="description" content="Homepage for Bill Heil, a comic and tech guy living in Berkeley, CA. This page contains social media links and upcoming shows.">
+        <meta name="author" content="Bill Heil">
 
-    <!-- meta tags for... Meta and other social platforms -->
-    <meta property="og:title" content="Homepage for Bill Heil">
-    <meta property="og:description" content="Homepage for Bill Heil, a comic and tech guy living in Berkeley, CA. This page contains social media links and upcoming shows.">
-    <meta property="og:image" content="bill-heil-headshot.jpg">
-    <meta property="og:url" content="https://billheil.com">
+        <!-- meta tags for... Meta and other social platforms -->
+        <meta property="og:title" content="Homepage for Bill Heil">
+        <meta property="og:description" content="Homepage for Bill Heil, a comic and tech guy living in Berkeley, CA. This page contains social media links and upcoming shows.">
+        <meta property="og:image" content="bill-heil-headshot.jpg">
+        <meta property="og:url" content="https://billheil.com">
 
-    <title>Bill Heil - comic and tech guy based in Berkeley, CA</title>
-    <link rel="canonical" href="https://billheil.com">
+        <title>Bill Heil - comic and tech guy based in Berkeley, CA</title>
+        <link rel="canonical" href="https://billheil.com">
 
-    <!-- via favicon.io -->
-    <link rel="icon" href="favicon.ico">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+        <!-- via favicon.io -->
+        <link rel="icon" href="favicon.ico">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Bootstrap core CSS -->
-    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <link href="/css/custom.css" rel="stylesheet">
+        <!-- Bootstrap core CSS -->
+        <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link href="/css/custom.css" rel="stylesheet">
 
-    <!-- Bootstrap icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <!-- Papaparse for Google Sheets CSV -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-</head>
+        <!-- Bootstrap icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <!-- Papaparse for Google Sheets CSV -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    </head>
 
-<body>
-    <div class="container-fluid p-0"> <!-- page container -->
-        <div class="container-fluid p-0 m-0 text-center bg-body-tertiary"><!-- jumbotron container -->
-            <div class="container-md"> <!-- container for headshot and bio -->
-                <div class = "row align-items-center">
-                    <div class="col-md-7 p-3"> <!-- column with name and bio -->
-                        <h1 class="text-body-tertiary">Bill Heil</h1>
-                        <p class="col-lg-8 mx-auto fs-5 m-0 text-body-tertiary">
-                            Comic and tech guy. Based in Berkeley.
-                        </p>
-                        <div class="d-inline-flex gap-3 p-2">
-                            <a href="https://www.instagram.com/billheil/"><i class="bi bi-instagram text-body-tertiary" style="font-size: 2rem;"></i></a>
-                            <a href="https://www.facebook.com/billheil"><i class="bi bi-facebook text-body-tertiary" style="font-size: 2rem;"></i></a>
-                            <a href="https://www.twitter.com/billheil"><i class="bi bi-twitter text-body-tertiary" style="font-size: 2rem;"></i></a>
-                            <a href="https://www.linkedin.com/in/billheil/"><i class="bi bi-linkedin text-body-tertiary" style="font-size: 2rem;"></i></a>
-                            <a href="mailto:booking@billheil.com"><i class="bi bi-envelope-at text-body-tertiary" style="font-size: 2rem;"></i></a>
-                        </div>
-                    </div> <!-- column with name and info -->
-                    <div class="col-md-5">
-                      <img src="bill-heil-headshot.png" class="img-fluid" alt="Bill Heil headshot, 2023">
-                    </div> <!--/image column -->
-
-                </div> <!-- jumbotron content -->
-            </div> <!-- jumbotron headshot and bio -->
-        </div> <!-- jumbotron container -->
-        <div class="container-fluid p-3 bg-body-secondary">
-            <div class="container-md"> <!-- container for headshot and bio -->
-                <h3>Want emails about shows?</h3>
-                <div class="d-flex gap-3"> <!-- inline email subscription form -->
-                    <form class="row row-cols-lg-auto g-3 align-items-center" id="subscribeForm" action="javascript:void(0);">
-                        <!--form class="row row-cols-lg-auto g-3 align-items-center" method="POST" action="https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec"-->
-                        <!--legend class="text-muted g-4" style="font-size: 1rem;">Want emails about shows?</legend>-->
-                        <div class="col-12">
-                            <div class="input-group">
-                                <label class="visually-hidden" for="email">Email</label>
-                                <input type="email" class="form-control bg-light-subtle text-emphasis" id="email" placeholder="funny@haha.com" name="Email" autocomplete="on">
+    <body>
+        <div class="container-fluid p-0"> <!-- page container -->
+            <div class="container-fluid p-0 m-0 text-center bg-body-tertiary"><!-- jumbotron container -->
+                <div class="container-md"> <!-- container for headshot and bio -->
+                    <div class = "row align-items-center">
+                        <div class="col-md-7 p-3"> <!-- column with name and bio -->
+                            <h1 class="text-body-tertiary">Bill Heil</h1>
+                            <p class="col-lg-8 mx-auto fs-5 m-0 text-body-tertiary">
+                                Comic and tech guy. Based in Berkeley.
+                            </p>
+                            <div class="d-inline-flex gap-3 p-2">
+                                <a href="https://www.instagram.com/billheil/"><i class="bi bi-instagram text-body-tertiary" style="font-size: 2rem;"></i></a>
+                                <a href="https://www.facebook.com/billheil"><i class="bi bi-facebook text-body-tertiary" style="font-size: 2rem;"></i></a>
+                                <a href="https://www.twitter.com/billheil"><i class="bi bi-twitter text-body-tertiary" style="font-size: 2rem;"></i></a>
+                                <a href="https://www.linkedin.com/in/billheil/"><i class="bi bi-linkedin text-body-tertiary" style="font-size: 2rem;"></i></a>
+                                <a href="mailto:booking@billheil.com"><i class="bi bi-envelope-at text-body-tertiary" style="font-size: 2rem;"></i></a>
                             </div>
-                        </div>
-                        <div class="col-12">
+                        </div> <!-- column with name and info -->
+                        <div class="col-md-5">
+                          <img src="bill-heil-headshot.png" class="img-fluid" alt="Bill Heil headshot, 2023">
+                        </div> <!--/image column -->
 
-                            <button type="submit" class="btn btn-primary" id="subscribeButton">
-                            <span id="subscribeSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
-                            Subscribe</button>
-                        </div>
-                    </form>
-                </div> <!-- inline email subscription form -->
-                <div id="submitSuccess" class="col-12 text-success" style="display: none;">
-                    Thanks, you've subscribed!
-                </div>
-                <div id="submitFailure" class="col-12 text-danger" style="display: none;">
-                    Sorry, something went wrong!
+                    </div> <!-- jumbotron content -->
+                </div> <!-- jumbotron headshot and bio -->
+            </div> <!-- jumbotron container -->
+            <div class="container-fluid p-3 bg-body-secondary">
+                <div class="container-md"> <!-- container for headshot and bio -->
+                    <h3>Want emails about shows?</h3>
+                    <div class="d-flex gap-3"> <!-- inline email subscription form -->
+                        <form class="row row-cols-lg-auto g-3 align-items-center" id="subscribeForm" action="javascript:void(0);">
+                            <!--form class="row row-cols-lg-auto g-3 align-items-center" method="POST" action="https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec"-->
+                            <!--legend class="text-muted g-4" style="font-size: 1rem;">Want emails about shows?</legend>-->
+                            <div class="col-12">
+                                <div class="input-group">
+                                    <label class="visually-hidden" for="email">Email</label>
+                                    <input type="email" class="form-control bg-light-subtle text-emphasis" id="email" placeholder="funny@haha.com" name="Email" autocomplete="on">
+                                </div>
+                            </div>
+                            <div class="col-12">
+
+                                <button type="submit" class="btn btn-primary" id="subscribeButton">
+                                <span id="subscribeSpinner" class="spinner-border spinner-border-sm" role="status" aria-hidden="true" style="display: none;"></span>
+                                Subscribe</button>
+                            </div>
+                        </form>
+                    </div> <!-- inline email subscription form -->
+                    <div id="submitSuccess" class="col-12 text-success" style="display: none;">
+                        Thanks, you've subscribed!
+                    </div>
+                    <div id="submitFailure" class="col-12 text-danger" style="display: none;">
+                        Sorry, something went wrong!
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="container p-3">
-            <h3>Showtimes and Tickets</h3>
-                <table class="table"> 
-                <thead> 
-                    <tr id="tableHeader"> </tr> 
-                </thead> 
-                <tbody id="tableBody"> </tbody> 
-            </table>
-        </div><!-- /table -->
-    </div><!-- /container -->
+            <div class="container p-3">
+                <h3>Showtimes and Tickets</h3>
+                    <table class="table"> 
+                    <thead> 
+                        <tr id="tableHeader"> </tr> 
+                    </thead> 
+                    <tbody id="tableBody"> </tbody> 
+                </table>
+            </div><!-- /table -->
+        </div><!-- /container -->
 
-    <!-- jQuery + minified bootstrap includes-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="/bootstrap/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+        <!-- jQuery + minified bootstrap includes-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="/bootstrap/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
 
-    <!-- Script to handle subscription email submission -->
-    <script>
-        $('#subscribeForm').submit( function() {
-            console.log("here");
-            if($('#email').val() == '') {
-                return false;
-            }
-            $('#subscribeSpinner').show();
-            $.ajax({
-                url: 'https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec',
-                type: 'post',
-                dataType: 'json',
-                data: $('form#subscribeForm').serialize(),
-                success: function(data) {
-                    console.log('here');
-                    $('#submitSuccess').show();
-                    $('#subscribeSpinner').hide();
-                },
-                error: function(data) {
-                    $('#submitFailure').show();
-                    $('#subscribeSpinner').hide();
+        <!-- Script to handle subscription email submission -->
+        <script>
+            $('#subscribeForm').submit( function() {
+                console.log("here");
+                if($('#email').val() == '') {
+                    return false;
                 }
+                $('#subscribeSpinner').show();
+                $.ajax({
+                    url: 'https://script.google.com/macros/s/AKfycbwvQa4UiVKEQuG-nojiJz9ORQlsOMI3PpczCHMVS-pMVORFfiahZlm15wpH7FcFGWOo/exec',
+                    type: 'post',
+                    dataType: 'json',
+                    data: $('form#subscribeForm').serialize(),
+                    success: function(data) {
+                        console.log('here');
+                        $('#submitSuccess').show();
+                        $('#subscribeSpinner').hide();
+                    },
+                    error: function(data) {
+                        $('#submitFailure').show();
+                        $('#subscribeSpinner').hide();
+                    }
+                });
             });
-        });
-    </script>
-    <!-- Script to grab upcoming shows from a Google Sheet and display as a table-->
-    <script>
-        url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0N69Gf5EdrfyOFEuUwWjYpKr_DfpwDh-qpx-2xxGx9VKjfGOWrtPJAKNugIANj_abfdc0Zhd833CA/pub?gid=0&single=true&output=csv'
+        </script>
+        <!-- Script to grab upcoming shows from a Google Sheet and display as a table-->
+        <script>
+            url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0N69Gf5EdrfyOFEuUwWjYpKr_DfpwDh-qpx-2xxGx9VKjfGOWrtPJAKNugIANj_abfdc0Zhd833CA/pub?gid=0&single=true&output=csv'
 
-        // Simple function to validate if text in calendar is a valid URL
-        function isValidHttpUrl(string) {
-            let url;  
-            try {
-                url = new URL(string);
-            } catch (_) {
-                return false;  
+            // Simple function to validate if text in calendar is a valid URL
+            function isValidHttpUrl(string) {
+                let url;  
+                try {
+                    url = new URL(string);
+                } catch (_) {
+                    return false;  
+                }
+                return url.protocol === "http:" || url.protocol === "https:";
             }
-            return url.protocol === "http:" || url.protocol === "https:";
-        }
 
-        function createDataElement(htmlTag, innerText, idParent) { 
-            let node = document.createElement(htmlTag);
+            function createDataElement(htmlTag, innerText, idParent) { 
+                let node = document.createElement(htmlTag);
 
-            let textnode;
+                let textnode;
 
-            //If we have a valid url in the calendar, HTML-enclose it
-            if(isValidHttpUrl(innerText)) {
-                textnode = document.createElement('a');
-                textnode.setAttribute('href',innerText);
-                textnode.innerHTML = "Tickets";
-            } else {
-                textnode = document.createTextNode(innerText);             
+                //If we have a valid url in the calendar, HTML-enclose it
+                if(isValidHttpUrl(innerText)) {
+                    textnode = document.createElement('a');
+                    textnode.setAttribute('href',innerText);
+                    textnode.innerHTML = "Tickets";
+                } else {
+                    textnode = document.createTextNode(innerText);             
+                }
+                node.appendChild(textnode); 
+                document.getElementById(idParent).appendChild(node); 
             }
-            node.appendChild(textnode); 
-            document.getElementById(idParent).appendChild(node); 
-        }
 
-        function createHeaderElement(columnText) { 
-            createDataElement("th", columnText, "tableHeader"); 
-        }
+            function createHeaderElement(columnText) { 
+                createDataElement("th", columnText, "tableHeader"); 
+            }
 
-        function createCellData(rowIndex, dataIndex, cellText) { 
-            if(dataIndex === 0) { 
-                let node = document.createElement("tr"); 
-                node.setAttribute("id", "row" + rowIndex); 
-                document.getElementById("tableBody").appendChild(node);
-                createDataElement("td", cellText, "row" + rowIndex);
-            } else { 
-                createDataElement("td", cellText, "row" + rowIndex); 
-            } 
-        }
+            function createCellData(rowIndex, dataIndex, cellText) { 
+                if(dataIndex === 0) { 
+                    let node = document.createElement("tr"); 
+                    node.setAttribute("id", "row" + rowIndex); 
+                    document.getElementById("tableBody").appendChild(node);
+                    createDataElement("td", cellText, "row" + rowIndex);
+                } else { 
+                    createDataElement("td", cellText, "row" + rowIndex); 
+                } 
+            }
 
-        Papa.parse(url, { 
-            download: true,
-            complete: function(results) { 
-                for(let i = 0; i < results.data.length; i++) { 
-                    if(i === 0) { 
-                        for(let j = 0; j < results.data[i].length; j++) { 
-                            createHeaderElement(results.data[i][j]); 
+            Papa.parse(url, { 
+                download: true,
+                complete: function(results) { 
+                    for(let i = 0; i < results.data.length; i++) { 
+                        if(i === 0) { 
+                            for(let j = 0; j < results.data[i].length; j++) { 
+                                createHeaderElement(results.data[i][j]); 
+                            } 
                         } 
-                    } 
-                    if(i > 0) { 
-                        for(let j = 0; j < results.data[i].length; j++) { 
-                            createCellData(i, j, results.data[i][j]); 
+                        if(i > 0) { 
+                            for(let j = 0; j < results.data[i].length; j++) { 
+                                createCellData(i, j, results.data[i][j]); 
+                            } 
                         } 
                     } 
                 } 
-            } 
-        });
-    </script> <!-- end of shows parsing -->
-</body>
+            });
+        </script> <!-- end of shows parsing -->
+    </body>
 </html>
