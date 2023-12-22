@@ -41,8 +41,9 @@
         <!-- Bootstrap icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
         <!-- Papaparse for Google Sheets CSV -->
-        <script src="/js/papaparse.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </head>
+
     <body>
         <div class="container-fluid p-0"> <!-- page container -->
             <div class="container-fluid p-0 m-0 text-center bg-body-tertiary"><!-- jumbotron container -->
@@ -101,9 +102,9 @@
                 <h3>Showtimes and Tickets</h3>
                     <table class="table"> 
                     <thead> 
-                        <tr id="tableHeader"><!-- AJAX-loaded content will be displayed here --></tr> 
+                        <tr id="tableHeader"> </tr> 
                     </thead> 
-                    <tbody id="tableBody"><!-- AJAX-loaded content will be displayed here --></tbody> 
+                    <tbody id="tableBody"> </tbody> 
                 </table>
             </div><!-- /table -->
         </div><!-- /container -->
