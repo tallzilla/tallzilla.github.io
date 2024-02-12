@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+    <head>
+        <!-- Bootstrap tags - The below 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-19232737-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'UA-19232737-1');
+        </script>
+
+        <meta name="description" content="Homepage for Bill Heil, a comic living in Berkeley, CA. This page contains social media links and upcoming shows.">
+        <meta name="author" content="Bill Heil">
+
+        <!-- meta tags for... Meta and other social platforms -->
+        <meta property="og:title" content="Homepage for Bill Heil">
+        <meta property="og:description" content="Homepage for Bill Heil, a comic living in Berkeley, CA. This page contains social media links and upcoming shows.">
+        <meta property="og:image" content="bill-heil-headshot.jpg">
+        <meta property="og:url" content="https://billheil.com">
+
+        <title>Bill Heil - comic based in Berkeley, CA</title>
+        <link rel="canonical" href="https://billheil.com">
+
+        <!-- via favicon.io -->
+        <link rel="icon" href="favicon.ico">
+        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+        <link rel="manifest" href="/site.webmanifest">
+
+        <!-- Bootstrap core CSS -->
+        <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+        <link href="/css/custom.css" rel="stylesheet">
+
+        <!-- Bootstrap icons -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+        <script src="/js/library.js"></script>
+        <!-- Papaparse for Google Sheets CSV -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    </head>
+
+    <body>
+        <div class="container-fluid p-0"> <!-- page container -->
+            <div class="container p-3">
+                <h3>Mom, come see these shows</h3>
+                    <table class="table"> 
+                    <thead> 
+                        <tr id="tableHeader"> </tr> 
+                    </thead> 
+                    <tbody id="tableBody"> </tbody> 
+                </table>
+            </div><!-- /table -->
+        </div><!-- /container -->
+
+        <!-- jQuery + minified bootstrap includes-->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="/bootstrap/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+
+        <script src="/js/showtimes.js"></script>
+    </body>
+</html>

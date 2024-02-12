@@ -40,6 +40,9 @@
 
         <!-- Bootstrap icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+        <script src="/js/library.js"></script>
+
         <!-- Papaparse for Google Sheets CSV -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.1/papaparse.min.js" integrity="sha512-EbdJQSugx0nVWrtyK3JdQQ/03mS3Q1UiAhRtErbwl1YL/+e2hZdlIcSURxxh7WXHTzn83sjlh2rysACoJGfb6g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     </head>
@@ -70,7 +73,7 @@
                 </div> <!-- jumbotron headshot and bio -->
             </div> <!-- jumbotron container -->
             <div class="container-fluid p-3 bg-body-secondary">
-                <div class="container-md"> <!-- container for headshot and bio -->
+                <div class="container-md"> 
                     <h3>Want emails about shows?</h3>
                     <div class="d-flex gap-3"> <!-- inline email subscription form -->
                         <form class="row row-cols-lg-auto g-3 align-items-center" id="subscribeForm" action="javascript:void(0);">
@@ -138,70 +141,6 @@
                 });
             });
         </script>
-        <!-- Script to grab upcoming shows from a Google Sheet and display as a table-->
-        <script>
-            url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQ0N69Gf5EdrfyOFEuUwWjYpKr_DfpwDh-qpx-2xxGx9VKjfGOWrtPJAKNugIANj_abfdc0Zhd833CA/pub?gid=0&single=true&output=csv'
-
-            // Simple function to validate if text in calendar is a valid URL
-            function isValidHttpUrl(string) {
-                let url;  
-                try {
-                    url = new URL(string);
-                } catch (_) {
-                    return false;  
-                }
-                return url.protocol === "http:" || url.protocol === "https:";
-            }
-
-            function createDataElement(htmlTag, innerText, idParent) { 
-                let node = document.createElement(htmlTag);
-
-                let textnode;
-
-                //If we have a valid url in the calendar, HTML-enclose it
-                if(isValidHttpUrl(innerText)) {
-                    textnode = document.createElement('a');
-                    textnode.setAttribute('href',innerText);
-                    textnode.innerHTML = "Tickets";
-                } else {
-                    textnode = document.createTextNode(innerText);             
-                }
-                node.appendChild(textnode); 
-                document.getElementById(idParent).appendChild(node); 
-            }
-
-            function createHeaderElement(columnText) { 
-                createDataElement("th", columnText, "tableHeader"); 
-            }
-
-            function createCellData(rowIndex, dataIndex, cellText) { 
-                if(dataIndex === 0) { 
-                    let node = document.createElement("tr"); 
-                    node.setAttribute("id", "row" + rowIndex); 
-                    document.getElementById("tableBody").appendChild(node);
-                    createDataElement("td", cellText, "row" + rowIndex);
-                } else { 
-                    createDataElement("td", cellText, "row" + rowIndex); 
-                } 
-            }
-
-            Papa.parse(url, { 
-                download: true,
-                complete: function(results) { 
-                    for(let i = 0; i < results.data.length; i++) { 
-                        if(i === 0) { 
-                            for(let j = 0; j < results.data[i].length; j++) { 
-                                createHeaderElement(results.data[i][j]); 
-                            } 
-                        } 
-                        if(i > 0) { 
-                            for(let j = 0; j < results.data[i].length; j++) { 
-                                createCellData(i, j, results.data[i][j]); 
-                            } 
-                        } 
-                    } 
-                } 
-            });
-        </script> <!-- end of shows parsing -->
+        <script src="/js/showtimes.js"></script>
     </body>
 </html>
