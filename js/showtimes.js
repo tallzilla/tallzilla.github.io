@@ -10,10 +10,10 @@ function convertStringToTimestamp(dateString) {
     };
 
     // Regular expression pattern to match the date format
-    const pattern = /^(\w{3}), (\w{3}) (\d{1,2}) (\d{4}), (\d{1,2})([AP]M)$/;
+    const pattern = /^(\w{3}), (\w{3}) (\d{1,2}) (\d{4}), (\d{1,2}):(\d{2})([AP]M)$/;
 
     // Use regular expression to extract date components
-    const [, dayOfWeek, monthStr, day, year, hour, ampm] = dateString.match(pattern);
+    const [, dayOfWeek, monthStr, day, year, hour, minutes, ampm] = dateString.match(pattern);
 
     // Convert month abbreviation to month number
     const month = monthNames[monthStr];
@@ -27,7 +27,7 @@ function convertStringToTimestamp(dateString) {
     }
 
     // Create a new Date object with the extracted components
-    const date = new Date(year, month, day, hour24, 0);
+    const date = new Date(year, month, day, hour24, parseInt(minutes));
 
     // Return the timestamp
     return date.getTime();
@@ -45,17 +45,18 @@ function convertTimestampToString(timestamp, format) {
     let hour = date.getHours();
     const ampm = hour >= 12 ? 'PM' : 'AM';
     hour = hour % 12 || 12; // Convert hour to 12-hour format
+    const minutes = (date.getMinutes() < 10 ? '0' : '') + date.getMinutes(); // Add leading zero if necessary
 
     // Format the date according to the specified format
     if (format === 'short') {
         const monthDay = `${date.getMonth() + 1}/${day}`;
         const hour12 = hour % 12 || 12; // Convert hour to 12-hour format
-        const ampm = hour < 12 ? 'PM' : 'AM';
-        return `${dayOfWeek.slice(0,3)}. ${monthDay}, ${hour12}${ampm}`;
+        return `${dayOfWeek.slice(0,3)}. ${monthDay}, ${hour12}:${minutes}${ampm}`;
     } else if (format === 'long') {
-        return `${dayOfWeek}, ${month} ${day} ${year}, ${hour}${ampm}`;
+        return `${dayOfWeek}, ${month} ${day} ${year}, ${hour}:${minutes}${ampm}`;
     }
 }
+
 
 function getUrlParameters() {
     const queryString = window.location.search;
@@ -125,6 +126,7 @@ Papa.parse(url, {
     download: true,
     complete: function(results) { 
 
+        console.log("Got showtimes")
     	params = Params.getUrlParameters()
 
     	// save the header row, will need it leader
