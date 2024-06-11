@@ -115,12 +115,11 @@ function createCellData(rowIndex, columnIndex, cellText) {
         node.setAttribute("id", "row" + rowIndex); 
         document.getElementById("tableBody").appendChild(node);
 
-        timestamp = convertStringToTimestamp(cellText)
-
         //Older versions of this were designed to accomodate unix timestamps, to do custom
         //date formatting in anticipating of other web-based views. But there aren't any, so I should
         //just pass the date in the csv supplied directly to the webpage
         //TODO: Go remove convert* functions in this project
+        //timestamp = convertStringToTimestamp(cellText)
         //createDataElement("td", convertTimestampToString(timestamp, dateFormat), "row" + rowIndex);
         createDataElement("td", cellText, "row" + rowIndex);
 
