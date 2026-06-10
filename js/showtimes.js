@@ -70,31 +70,10 @@ function getUrlParameters() {
     return params;
 }
 
-// Simple function to validate if text in calendar is a valid URL
-function isValidHttpUrl(string) {
-    let url;  
-    try {
-        url = new URL(string);
-    } catch (_) {
-        return false;  
-    }
-    return url.protocol === "http:" || url.protocol === "https:";
-}
-
-function createDataElement(htmlTag, innerText, idParent) { 
+function createDataElement(htmlTag, innerText, idParent) {
     let node = document.createElement(htmlTag);
-    let textnode;
-
-    //If we have a valid url in the calendar, HTML-enclose it
-    if(isValidHttpUrl(innerText)) {
-        textnode = document.createElement('a');
-        textnode.setAttribute('href',innerText);
-        textnode.innerHTML = "Tickets";
-    } else {
-        textnode = document.createTextNode(innerText);             
-    }
-    node.appendChild(textnode); 
-    document.getElementById(idParent).appendChild(node); 
+    node.appendChild(document.createTextNode(innerText));
+    document.getElementById(idParent).appendChild(node);
 }
 
 function createHeaderElement(columnText) { 
@@ -146,10 +125,16 @@ Papa.parse(url, {
     	let startShow = params['startShow'] === undefined ? 0 : params['startShow'];
         results.data = params['numShows'] === undefined ? results.data : results.data.slice(startShow, params['numShows']);    	
 
-    	// add back the header 
+    	// add back the header
     	results.data.unshift(headerRow);
 
-	   	// now trim down the expected columns (including the header)
+    	// drop the Tickets column
+    	const ticketsIndex = results.data[0].indexOf('Tickets');
+    	if (ticketsIndex !== -1) {
+    	    results.data = results.data.map(row => row.filter((_, i) => i !== ticketsIndex));
+    	}
+
+    	// now trim down the expected columns (including the header)
     	results.data = params['cols'] === undefined ? results.data : results.data.map(row => row.slice(0, params['cols']));
 
         for(let i = 0; i < results.data.length; i++) { 
