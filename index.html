@@ -84,6 +84,7 @@
                                     <input type="email" class="form-control bg-light-subtle text-emphasis" id="email" placeholder="funny@haha.com" name="Email" autocomplete="on">
                                 </div>
                             </div>
+                            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off" style="display:none">
                             <div class="col-12">
 
                                 <button type="submit" class="btn btn-primary" id="subscribeButton">
@@ -119,7 +120,7 @@
         <script>
             $('#subscribeForm').submit( function() {
                 console.log("here");
-                if($('#email').val() == '') {
+                if($('#email').val() == '' || $('#website').val() != '') {
                     return false;
                 }
                 $('#subscribeSpinner').show();
