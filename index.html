@@ -80,11 +80,11 @@
                             <!--legend class="text-muted g-4" style="font-size: 1rem;">Want emails about shows?</legend>-->
                             <div class="col-12">
                                 <div class="input-group">
-                                    <label class="visually-hidden" for="email">Email</label>
-                                    <input type="email" class="form-control bg-light-subtle text-emphasis" id="email" placeholder="funny@haha.com" name="Email" autocomplete="on">
+                                    <label class="visually-hidden" for="fan">Email</label>
+                                    <input type="email" class="form-control bg-light-subtle text-emphasis" id="fan" placeholder="funny@haha.com" name="fan" autocomplete="email">
                                 </div>
                             </div>
-                            <input type="text" name="website" id="website" tabindex="-1" autocomplete="off" style="display:none">
+                            <input type="text" name="email" id="email" tabindex="-1" autocomplete="off" style="display:none">
                             <div class="col-12">
 
                                 <button type="submit" class="btn btn-primary" id="subscribeButton">
@@ -120,7 +120,7 @@
         <script>
             $('#subscribeForm').submit( function() {
                 console.log("here");
-                if($('#email').val() == '' || $('#website').val() != '') {
+                if($('#fan').val() == '' || $('#email').val() != '') {
                     return false;
                 }
                 $('#subscribeSpinner').show();
