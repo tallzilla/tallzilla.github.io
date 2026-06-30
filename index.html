@@ -85,6 +85,7 @@
                                 </div>
                             </div>
                             <input type="text" name="email" id="email" tabindex="-1" autocomplete="off" style="display:none">
+                            <input type="hidden" name="_h" id="_h" value="">
                             <div class="col-12">
 
                                 <button type="submit" class="btn btn-primary" id="subscribeButton">
@@ -118,6 +119,7 @@
 
         <!-- Script to handle subscription email submission -->
         <script>
+            $('#_h').val('zilla42');
             $('#subscribeForm').submit( function() {
                 console.log("here");
                 if($('#fan').val() == '' || $('#email').val() != '') {
