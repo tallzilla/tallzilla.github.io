@@ -35,6 +35,19 @@ function fakeSuccess () {
     .setMimeType(ContentService.MimeType.JSON)
 }
 
+// Set via Project Settings > Script Properties in the Apps Script editor,
+// not hardcoded here, so the secret never ends up in the public GitHub repo.
+function verifyRecaptcha (token) {
+  if (!token) return false
+  const secret = scriptProp.getProperty('RECAPTCHA_SECRET')
+  const response = UrlFetchApp.fetch('https://www.google.com/recaptcha/api/siteverify', {
+    method: 'post',
+    payload: { secret: secret, response: token }
+  })
+  const result = JSON.parse(response.getContentText())
+  return result.success && result.action === 'subscribe' && result.score >= 0.5
+}
+
 function doPost (e) {
   const lock = LockService.getScriptLock()
   lock.tryLock(10000)
@@ -46,6 +59,10 @@ function doPost (e) {
     // Honeypot filled, missing/wrong token, or no email at all: pretend
     // success so scripted clients don't learn they were rejected.
     if (params.email !== '' || params._h !== 'zilla42' || !email) {
+      return fakeSuccess()
+    }
+
+    if (!verifyRecaptcha(params.g_recaptcha_response)) {
       return fakeSuccess()
     }
 
