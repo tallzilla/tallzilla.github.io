@@ -15,7 +15,12 @@
 //   image      — path (or full URL) to the image to display, relative to
 //                this folder unless it starts with http
 //   imageAlt   — alt text for the image (not shown on screen, just a11y)
-//   body       — caption / message shown under the image
+//   body       — caption / message shown under the image. Leave as null to
+//                auto-show a live weather description for Berkeley, CA
+//                (fetched from open-meteo.com, no API key needed) instead
+//                of typing one in by hand. Set it to a string to pin a
+//                fixed caption instead — see render.js for the weather
+//                fetch/location if you want to point it elsewhere.
 
 window.FRAME_DATA = {
     title: "Good Morning, Bill",
@@ -23,5 +28,5 @@ window.FRAME_DATA = {
     timeZone: null,
     image: "https://static0.srcdn.com/wordpress/wp-content/uploads/2021/10/Spider-Man-comics.jpg?q=50&fit=crop&w=1600&h=1200&dpr=1.5",
     imageAlt: "Spider-Man comics",
-    body: "This is placeholder caption text. Edit frame/data.js to change the title, image, and this message."
+    body: null
 };
