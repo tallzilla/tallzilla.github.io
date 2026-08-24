@@ -1,11 +1,15 @@
 // Renders the /frame title/date box and caption box as canvas bitmaps
 // instead of live DOM text, and hard-thresholds every pixel to pure black
 // or white (no gray, no error diffusion — unlike dither.js's photo
-// dithering, text should stay crisp, not dotted). On the real eink device,
-// normal anti-aliased font edges (smooth gray pixels along glyph curves)
-// were getting fuzzed by whatever converts the page for the 6-color panel —
-// same class of problem the comic image had before dither.js, except text
-// wants a hard cutoff rather than a dither pattern.
+// dithering, text should stay crisp, not dotted).
+//
+// Thresholding anti-aliased glyphs to 1-bit removes the sub-pixel gradient
+// that normally fakes smooth curves, so small/thin strokes show visible
+// stairstepping — that's what was reading as "fuzzy" on the real device
+// (confirmed: a normal browser view of this page looks the same as the
+// device, so nothing downstream is adding extra blur). Larger, heavier
+// text has proportionally finer stairsteps relative to the letterform, so
+// sizes/weights here are pushed up from what you'd use on a normal screen.
 (function () {
     var PADDING = 32;
     var BORDER = 4;
@@ -105,8 +109,8 @@
     // (like the old CSS width:fit-content), not always maxed out.
     function renderHeader(canvasEl, title, subtitle, maxContentWidth) {
         var ctx = canvasEl.getContext("2d");
-        var titleFont = "bold 56px " + FONT_FAMILY;
-        var subtitleFont = "400 24px " + FONT_FAMILY;
+        var titleFont = "bold 72px " + FONT_FAMILY;
+        var subtitleFont = "600 30px " + FONT_FAMILY;
 
         ctx.font = titleFont;
         var titleLines = clampLines(ctx, wrapText(ctx, title, maxContentWidth), maxContentWidth, 2);
@@ -121,8 +125,8 @@
         });
 
         drawBox(canvasEl, [
-            { font: titleFont, lineHeight: 64, marginTop: 0, lines: titleLines },
-            { font: subtitleFont, lineHeight: 29, marginTop: 10, lines: subtitleLines }
+            { font: titleFont, lineHeight: 83, marginTop: 0, lines: titleLines },
+            { font: subtitleFont, lineHeight: 36, marginTop: 12, lines: subtitleLines }
         ], contentWidth);
     }
 
@@ -130,12 +134,12 @@
     // (unlike the header, which hugs its text) and clamped to maxLines.
     function renderFooter(canvasEl, body, contentWidth, maxLines) {
         var ctx = canvasEl.getContext("2d");
-        var font = "400 26px " + FONT_FAMILY;
+        var font = "600 34px " + FONT_FAMILY;
         ctx.font = font;
         var lines = clampLines(ctx, wrapText(ctx, body, contentWidth), contentWidth, maxLines);
 
         drawBox(canvasEl, [
-            { font: font, lineHeight: 36, marginTop: 0, lines: lines }
+            { font: font, lineHeight: 48, marginTop: 0, lines: lines }
         ], contentWidth);
     }
 

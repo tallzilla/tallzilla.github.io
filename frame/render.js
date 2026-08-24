@@ -47,7 +47,7 @@
     window.FRAME_TEXT_CANVAS.renderHeader(headerCanvasEl, title, subtitle, TEXT_MAX_CONTENT_WIDTH);
     headerCanvasEl.setAttribute("aria-label", title + " — " + subtitle);
 
-    window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 3);
+    window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 4);
     footerCanvasEl.setAttribute("aria-label", body);
 
     if (data.image) {
