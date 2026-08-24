@@ -1,6 +1,9 @@
 /* Layout for the ReTerminal E1004 eink frame (1600x1200 landscape).
-   Kept high-contrast (black on white) and free of gradients/animation
-   since eink refreshes slowly and renders grayscale. */
+   The panel is an E Ink Spectra 6 display — only 6 fixed colors exist
+   (black, white, red, yellow, blue, green), no shades of gray in between —
+   so every color here has to be one of those 6 or it just gets quantized
+   to the nearest one (near-white grays like #f2f2f2 round to plain white).
+   Also free of gradients/animation since eink refreshes slowly. */
 
 * {
     box-sizing: border-box;
@@ -50,15 +53,15 @@ body {
     margin: 10px 0 0;
     font-size: 24px;
     font-weight: 400;
-    color: #444;
+    color: #000;
 }
 
 .frame__image-wrap {
     flex: 1 1 auto;
     min-height: 0;
     margin-top: 32px;
-    background: #f2f2f2;
-    border: 1px solid #ddd;
+    background: #fff;
+    border: 3px solid #000;
     display: flex;
     align-items: center;
     justify-content: center;
