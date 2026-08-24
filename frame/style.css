@@ -3,10 +3,11 @@
    (black, white, red, yellow, blue, green), no shades of gray in between —
    so every color here has to be one of those 6 or it just gets quantized
    to the nearest one (near-white grays like #f2f2f2 round to plain white).
-   That's also why the text overlays below are solid black bars rather than
-   a translucent gradient scrim: a translucent black would render as some
-   blended RGB in the browser, but there's no guarantee it quantizes to
-   anything legible once the device maps it onto the 6-color palette.
+   Text sits directly on top of the image (no background bar behind it),
+   so it's white fill with a black outline (-webkit-text-stroke) rather
+   than a single flat color — that keeps it readable over both light and
+   dark parts of the photo, and both colors in the outline are real palette
+   colors rather than a translucent scrim that might not quantize cleanly.
    Also free of animation since eink refreshes slowly. */
 
 * {
@@ -53,7 +54,6 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    background: #000;
     padding: 40px 64px;
 }
 
@@ -63,6 +63,8 @@ body {
     font-weight: 700;
     line-height: 1.15;
     color: #fff;
+    -webkit-text-stroke: 4px #000;
+    paint-order: stroke fill;
 }
 
 .frame__subtitle {
@@ -70,6 +72,8 @@ body {
     font-size: 24px;
     font-weight: 400;
     color: #fff;
+    -webkit-text-stroke: 2px #000;
+    paint-order: stroke fill;
 }
 
 .frame__footer {
@@ -77,7 +81,6 @@ body {
     bottom: 0;
     left: 0;
     right: 0;
-    background: #000;
     padding: 24px 64px 32px;
 }
 
@@ -86,9 +89,11 @@ body {
     font-size: 26px;
     line-height: 1.4;
     color: #fff;
+    -webkit-text-stroke: 2px #000;
+    paint-order: stroke fill;
 
-    /* clamp to ~3 lines so a long caption can't grow the bar past the
-       space it's meant to take up */
+    /* clamp to ~3 lines so a long caption can't grow past the space it's
+       meant to take up */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
