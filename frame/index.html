@@ -21,10 +21,15 @@
         <canvas class="frame__footer-canvas" id="frame-footer-canvas" role="img"></canvas>
     </div>
 
-    <script src="/frame/data.js"></script>
-    <script src="/frame/weather.js"></script>
-    <script src="/frame/dither.js"></script>
-    <script src="/frame/text-canvas.js"></script>
-    <script src="/frame/render.js"></script>
+    <!-- All type="module" (dither.js needs static import for the vendored
+         epdoptimize library) — module scripts are deferred and execute in
+         relative document order, same guarantee this pipeline needs
+         classic scripts for, so every script here is one for consistency
+         rather than mixing execution-order semantics. -->
+    <script type="module" src="/frame/data.js"></script>
+    <script type="module" src="/frame/weather.js"></script>
+    <script type="module" src="/frame/dither.js"></script>
+    <script type="module" src="/frame/text-canvas.js"></script>
+    <script type="module" src="/frame/render.js"></script>
 </body>
 </html>

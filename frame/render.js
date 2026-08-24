@@ -1,11 +1,15 @@
 // Populates the frame markup from window.FRAME_DATA (set in data.js) and
 // window.FRAME_WEATHER (set in weather.js, regenerated on a schedule by
 // .github/workflows/update-frame-weather.yml — see frame/generate-weather.js).
-// Both are loaded as plain <script src>s before this file, so everything
-// here is available synchronously: no fetch()/async race to worry about
-// before a screenshot/capture pipeline grabs the page. (An earlier version
-// fetched weather client-side, but the device capturing /frame doesn't wait
-// for in-page network requests, so it only ever saw the "Loading..." state.)
+// Both are loaded as plain <script>s before this file, so title/date/
+// caption text are all available synchronously — no fetch()/async race to
+// worry about before a screenshot/capture pipeline grabs the page. (An
+// earlier version fetched weather client-side, but the device capturing
+// /frame doesn't wait for in-page network requests, so it only ever saw
+// the "Loading..." state.) Image dithering below is the one async piece
+// (epdoptimize's ditherImage() is Promise-based), but it's pure in-page
+// CPU work with no network call of its own, tied to the <img> load event,
+// which any real capture pipeline already has to wait for anyway.
 (function () {
     var data = window.FRAME_DATA || {};
 
@@ -84,14 +88,15 @@
             }
             canvasEl.width = FRAME_WIDTH;
             canvasEl.height = FRAME_HEIGHT;
-            var ok = window.FRAME_DITHER.renderDithered(imageEl, canvasEl);
-            if (ok) {
-                imageEl.style.display = "none";
-                canvasEl.style.display = "";
-            }
-            // else: leave the plain <img> visible (CSS object-fit:contain
-            // still applies), e.g. if the source blocks cross-origin pixel
-            // reads even with crossOrigin set.
+            window.FRAME_DITHER.renderDithered(imageEl, canvasEl).then(function (ok) {
+                if (ok) {
+                    imageEl.style.display = "none";
+                    canvasEl.style.display = "";
+                }
+                // else: leave the plain <img> visible (CSS
+                // object-fit:contain still applies), e.g. if the source
+                // blocks cross-origin pixel reads even with crossOrigin set.
+            });
         };
 
         imageEl.src = data.image;

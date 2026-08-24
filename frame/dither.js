@@ -1,131 +1,94 @@
 // Quantizes+dithers an image to the E Ink Spectra 6 palette (black, white,
 // red, yellow, green, blue — the only 6 colors the reTerminal E1004's panel
-// can actually display) via Floyd-Steinberg error diffusion, so gradients
-// and blended colors in a photo/comic image degrade gracefully into a
-// dot-pattern instead of just snapping each pixel to its single nearest
-// palette color (which bands badly on anything that isn't already flat
-// color, like the shading in comic art).
+// can actually display) using the epdoptimize library (vendored at
+// frame/vendor/epdoptimize.mjs — see that file's header for source/license)
+// rather than a hand-rolled Floyd-Steinberg implementation. It's built
+// specifically for calibrated e-paper color reproduction: tone mapping,
+// dynamic range compression, and an auto-recommender that picks dithering
+// settings based on whether the source looks like a photo or flat-color
+// illustration (comic art, in our case), on top of several dithering
+// algorithms — well beyond what's worth hand-rolling here.
 //
-// E Ink hasn't published official RGB values for Spectra 6, and real
-// hardware renders noticeably more muted than pure monitor primaries
-// (#ff0000 red, #00ff00 green, etc). The values below are the "compensated"
-// estimate that a couple of Spectra 6 hobbyist projects (Pimoroni's Inky
-// Impression forum, the PhotoPainter Spectra 6 converter) converged on —
-// see https://forums.pimoroni.com/t/what-rgb-colors-are-you-using-for-the-colors-on-the-impression-spectra-6/27942
-// They're an eyeballed approximation, not a measured spec, so treat this
-// as a reasonable starting point rather than ground truth. Even if
-// whatever renders /frame on the actual device re-quantizes on its own
-// afterward, our pixels are already one of these 6 colors, so a
-// nearest-color pass on top of this is a no-op in the worst case.
-(function () {
-    var PALETTE = [
-        [0, 0, 0],       // black
-        [255, 255, 255], // white
-        [160, 32, 32],   // red    #a02020
-        [240, 224, 80],  // yellow #f0e050
-        [96, 128, 80],   // green  #608050
-        [80, 128, 184]   // blue   #5080b8
-    ];
+// epdoptimize's palettes carry two colors per entry: a calibrated `color`
+// (what the ink actually looks like, measured against real Spectra 6
+// hardware) and a `deviceColor` (a saturated primary meant for a hardware
+// driver's own waveform processing, e.g. pure #ff0000 for "red"). We want
+// the former — ditherImage()'s output already uses `color`; `deviceColor`
+// only matters if you separately call replaceColors() to feed a physical
+// EPD controller, which doesn't apply here since /frame is just a web page
+// that gets screenshotted, not written to a display driver directly.
+import {
+    ditherImage,
+    aitjcizeSpectra6Palette
+} from "./vendor/epdoptimize.mjs";
 
-    function nearestPaletteColor(r, g, b) {
-        var best = PALETTE[0];
-        var bestDist = Infinity;
-        for (var i = 0; i < PALETTE.length; i++) {
-            var p = PALETTE[i];
-            var dr = r - p[0], dg = g - p[1], db = b - p[2];
-            var dist = dr * dr + dg * dg + db * db;
-            if (dist < bestDist) {
-                bestDist = dist;
-                best = p;
-            }
-        }
-        return best;
+// Draws sourceImg onto canvasEl at canvasEl's existing width/height using
+// the same centering math as CSS object-fit:contain, filling any letterbox
+// margin with black, then dithers the result to the Spectra 6 palette.
+// Returns a Promise<boolean> — true on success; false (leaving canvasEl
+// untouched) if the canvas is CORS-tainted or the image has no usable
+// dimensions — callers should fall back to the plain <img> in that case.
+async function renderDithered(sourceImg, canvasEl) {
+    var iw = sourceImg.naturalWidth;
+    var ih = sourceImg.naturalHeight;
+    if (!iw || !ih) {
+        return false;
     }
 
-    function clamp(v) {
-        return v < 0 ? 0 : v > 255 ? 255 : v;
+    var frameWidth = canvasEl.width;
+    var frameHeight = canvasEl.height;
+
+    var inputCanvas = document.createElement("canvas");
+    inputCanvas.width = frameWidth;
+    inputCanvas.height = frameHeight;
+    var inputCtx = inputCanvas.getContext("2d");
+
+    inputCtx.fillStyle = "#000";
+    inputCtx.fillRect(0, 0, frameWidth, frameHeight);
+
+    var scale = Math.min(frameWidth / iw, frameHeight / ih);
+    var drawW = iw * scale;
+    var drawH = ih * scale;
+    var dx = (frameWidth - drawW) / 2;
+    var dy = (frameHeight - drawH) / 2;
+
+    inputCtx.drawImage(sourceImg, dx, dy, drawW, drawH);
+
+    try {
+        // Touch the pixel data up front so a CORS-tainted source throws
+        // here, before handing off to the library.
+        inputCtx.getImageData(0, 0, 1, 1);
+    } catch (err) {
+        return false;
     }
 
-    function diffuse(data, width, height, x, y, errR, errG, errB, factor) {
-        if (x < 0 || x >= width || y < 0 || y >= height) {
-            return;
-        }
-        var i = (y * width + x) * 4;
-        data[i] = clamp(data[i] + errR * factor);
-        data[i + 1] = clamp(data[i + 1] + errG * factor);
-        data[i + 2] = clamp(data[i + 2] + errB * factor);
-    }
+    // Fixed options matching the library's own "Quick Start" example,
+    // rather than its suggestCanvasProcessingOptions() auto-recommender:
+    // the recommender classified this comic page as "textOrUi" content
+    // (probably thrown off by all the lettered dialogue) and applied tone
+    // mapping/dynamic range compression tuned for that, which came out
+    // visibly washed-out — flat panel colors read as pale gray instead of
+    // vivid green/yellow/blue. The plain defaults below dither straight
+    // against the calibrated palette with no extra tone adjustment and
+    // looked correct in a side-by-side test.
+    await ditherImage(inputCanvas, canvasEl, {
+        palette: aitjcizeSpectra6Palette,
+        processingPreset: "balanced",
+        ditheringType: "errorDiffusion",
+        errorDiffusionMatrix: "floydSteinberg",
+        serpentine: true,
+        // Force pure-JS processing: avoids pulling in the library's WASM/
+        // Worker-accelerated paths, which would mean vendoring and wiring
+        // up additional asset files (a .wasm module, a Worker script) for
+        // a speed-up that doesn't matter at this image size.
+        processingEngine: "js",
+        adjustmentEngine: "js"
+    });
 
-    // Mutates imageData in place (Floyd-Steinberg error diffusion).
-    function ditherToPalette(imageData) {
-        var data = imageData.data;
-        var width = imageData.width;
-        var height = imageData.height;
+    return true;
+}
 
-        for (var y = 0; y < height; y++) {
-            for (var x = 0; x < width; x++) {
-                var i = (y * width + x) * 4;
-                var r = data[i], g = data[i + 1], b = data[i + 2];
-                var match = nearestPaletteColor(r, g, b);
-                var errR = r - match[0];
-                var errG = g - match[1];
-                var errB = b - match[2];
-
-                data[i] = match[0];
-                data[i + 1] = match[1];
-                data[i + 2] = match[2];
-
-                diffuse(data, width, height, x + 1, y, errR, errG, errB, 7 / 16);
-                diffuse(data, width, height, x - 1, y + 1, errR, errG, errB, 3 / 16);
-                diffuse(data, width, height, x, y + 1, errR, errG, errB, 5 / 16);
-                diffuse(data, width, height, x + 1, y + 1, errR, errG, errB, 1 / 16);
-            }
-        }
-    }
-
-    // Draws sourceImg onto canvasEl at canvasEl's existing width/height using
-    // the same centering math as CSS object-fit:contain, filling any
-    // letterbox margin with black, then dithers the result to the Spectra 6
-    // palette. Returns true on success; false (leaving canvasEl untouched)
-    // if the canvas is CORS-tainted or the image has no usable dimensions —
-    // callers should fall back to the plain <img> in that case.
-    function renderDithered(sourceImg, canvasEl) {
-        var iw = sourceImg.naturalWidth;
-        var ih = sourceImg.naturalHeight;
-        if (!iw || !ih) {
-            return false;
-        }
-
-        var frameWidth = canvasEl.width;
-        var frameHeight = canvasEl.height;
-        var ctx = canvasEl.getContext("2d");
-
-        ctx.fillStyle = "#000";
-        ctx.fillRect(0, 0, frameWidth, frameHeight);
-
-        var scale = Math.min(frameWidth / iw, frameHeight / ih);
-        var drawW = iw * scale;
-        var drawH = ih * scale;
-        var dx = (frameWidth - drawW) / 2;
-        var dy = (frameHeight - drawH) / 2;
-
-        ctx.drawImage(sourceImg, dx, dy, drawW, drawH);
-
-        try {
-            var imageData = ctx.getImageData(0, 0, frameWidth, frameHeight);
-            ditherToPalette(imageData);
-            ctx.putImageData(imageData, 0, 0);
-        } catch (err) {
-            // CORS-tainted canvas (source image didn't allow cross-origin
-            // pixel reads) — caller falls back to the undithered <img>.
-            return false;
-        }
-
-        return true;
-    }
-
-    window.FRAME_DITHER = {
-        palette: PALETTE,
-        renderDithered: renderDithered
-    };
-})();
+window.FRAME_DITHER = {
+    palette: aitjcizeSpectra6Palette,
+    renderDithered: renderDithered
+};
