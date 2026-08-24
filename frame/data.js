@@ -21,7 +21,7 @@ window.FRAME_DATA = {
     title: "Good Morning, Bill",
     subtitle: null,
     timeZone: null,
-    image: "placeholder.svg",
-    imageAlt: "Placeholder image — swap this out in frame/data.js",
+    image: "https://static0.srcdn.com/wordpress/wp-content/uploads/2021/10/Spider-Man-comics.jpg?q=50&fit=crop&w=1600&h=1200&dpr=1.5",
+    imageAlt: "Spider-Man comics",
     body: "This is placeholder caption text. Edit frame/data.js to change the title, image, and this message."
 };
