@@ -35,12 +35,29 @@
         });
     }
 
+    function greetingForHour() {
+        var hourStr = new Date().toLocaleString("en-US", {
+            timeZone: data.timeZone || "America/Los_Angeles",
+            hour: "numeric",
+            hour12: false
+        });
+        var hour = parseInt(hourStr, 10) % 24; // some engines report midnight as "24"
+
+        if (hour < 12) {
+            return "Good Morning";
+        }
+        if (hour < 17) {
+            return "Good Afternoon";
+        }
+        return "Good Evening";
+    }
+
     var headerCanvasEl = document.getElementById("frame-header-canvas");
     var footerCanvasEl = document.getElementById("frame-footer-canvas");
     var imageEl = document.getElementById("frame-image");
     var canvasEl = document.getElementById("frame-canvas");
 
-    var title = data.title || "";
+    var title = data.title || (greetingForHour() + ", " + (data.name || "Bill"));
     var subtitle = data.subtitle || todayFormatted();
     var body = data.body || window.FRAME_WEATHER || "";
 

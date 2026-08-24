@@ -4,7 +4,13 @@
 // The device just re-fetches this page on its own schedule, so there's
 // nothing else to redeploy.
 //
-//   title      — big headline at the top (keep it short, ~1 line)
+//   title      — big headline at the top (keep it short, ~1 line). Leave as
+//                null to auto-show a time-of-day greeting ("Good Morning,
+//                Bill" / "Good Afternoon, Bill" / "Good Evening, Bill",
+//                based on the hour where timeZone below points) instead of
+//                typing one in by hand.
+//   name       — name used in the auto greeting above. Leave as null to
+//                default to "Bill". Ignored if title is set.
 //   subtitle   — small line under the title. Leave as null to auto-show
 //                today's date instead of typing one in by hand.
 //   timeZone   — IANA timezone (e.g. "America/Los_Angeles") used for the
@@ -30,7 +36,8 @@
 //                fetch/location if you want to point it elsewhere.
 
 window.FRAME_DATA = {
-    title: "Good Morning, Bill",
+    title: null,
+    name: null,
     subtitle: null,
     timeZone: null,
     image: "https://static.wikia.nocookie.net/marveldatabase/images/e/e0/Peter_Parker_%28Earth-616%29_from_Amazing_Fantasy_Vol_1_15_003.jpg/revision/latest/scale-to-height-down/1200?cb=20260612035534",
