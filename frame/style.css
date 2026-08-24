@@ -3,12 +3,11 @@
    (black, white, red, yellow, blue, green), no shades of gray in between —
    so every color here has to be one of those 6 or it just gets quantized
    to the nearest one (near-white grays like #f2f2f2 round to plain white).
-   Text sits directly on top of the image (no background bar behind it),
-   so it's white fill with a black outline (-webkit-text-stroke) rather
-   than a single flat color — that keeps it readable over both light and
-   dark parts of the photo, and both colors in the outline are real palette
-   colors rather than a translucent scrim that might not quantize cleanly.
-   Also free of animation since eink refreshes slowly. */
+   Text sits in white boxes with a black border and black text, styled like
+   the comic's own narration/caption boxes rather than a UI overlay — an
+   earlier white-on-black-outline version got lost against the dense black
+   linework in the art, and a solid opaque box guarantees contrast without
+   that problem. Also free of animation since eink refreshes slowly. */
 
 * {
     box-sizing: border-box;
@@ -51,10 +50,13 @@ body {
 
 .frame__header {
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    padding: 40px 64px;
+    top: 32px;
+    left: 32px;
+    width: fit-content;
+    max-width: calc(100% - 64px);
+    background: #fff;
+    border: 4px solid #000;
+    padding: 24px 32px;
 }
 
 .frame__title {
@@ -62,35 +64,31 @@ body {
     font-size: 56px;
     font-weight: 700;
     line-height: 1.15;
-    color: #fff;
-    -webkit-text-stroke: 4px #000;
-    paint-order: stroke fill;
+    color: #000;
 }
 
 .frame__subtitle {
     margin: 10px 0 0;
     font-size: 24px;
     font-weight: 400;
-    color: #fff;
-    -webkit-text-stroke: 2px #000;
-    paint-order: stroke fill;
+    color: #000;
 }
 
 .frame__footer {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 24px 64px 32px;
+    bottom: 32px;
+    left: 32px;
+    right: 32px;
+    background: #fff;
+    border: 4px solid #000;
+    padding: 20px 32px;
 }
 
 .frame__body {
     margin: 0;
     font-size: 26px;
     line-height: 1.4;
-    color: #fff;
-    -webkit-text-stroke: 2px #000;
-    paint-order: stroke fill;
+    color: #000;
 
     /* clamp to ~3 lines so a long caption can't grow past the space it's
        meant to take up */
