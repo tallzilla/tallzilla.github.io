@@ -40,7 +40,7 @@ window.FRAME_DATA = {
     name: null,
     subtitle: null,
     timeZone: null,
-    image: "images/yosemite.jpg",
-    imageAlt: "Yosemite National Park",
+    image: "images/kandinsky-370.jpg",
+    imageAlt: "Wassily Kandinsky, Farbstudie Quadrate (Color Study: Squares with Concentric Circles), 1913",
     body: null
 };
