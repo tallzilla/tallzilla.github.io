@@ -12,6 +12,13 @@
     var FRAME_WIDTH = 1600;
     var FRAME_HEIGHT = 1200;
 
+    // Both text boxes sit inset 32px from the frame's left/right edges —
+    // this is the content width left over after that inset plus the box's
+    // own padding (32px) and border (4px) on each side. The header wraps
+    // within this as a max-width (and hugs whatever the actual widest line
+    // is); the footer uses it as its fixed box width.
+    var TEXT_MAX_CONTENT_WIDTH = FRAME_WIDTH - 32 - 32 - 32 * 2 - 4 * 2;
+
     function todayFormatted() {
         // Pin an explicit IANA timezone rather than trusting the rendering
         // device's own clock/timezone setting (toLocaleDateString's default
@@ -28,14 +35,20 @@
         });
     }
 
-    var titleEl = document.getElementById("frame-title");
-    var subtitleEl = document.getElementById("frame-subtitle");
+    var headerCanvasEl = document.getElementById("frame-header-canvas");
+    var footerCanvasEl = document.getElementById("frame-footer-canvas");
     var imageEl = document.getElementById("frame-image");
     var canvasEl = document.getElementById("frame-canvas");
-    var bodyEl = document.getElementById("frame-body");
 
-    titleEl.textContent = data.title || "";
-    subtitleEl.textContent = data.subtitle || todayFormatted();
+    var title = data.title || "";
+    var subtitle = data.subtitle || todayFormatted();
+    var body = data.body || window.FRAME_WEATHER || "";
+
+    window.FRAME_TEXT_CANVAS.renderHeader(headerCanvasEl, title, subtitle, TEXT_MAX_CONTENT_WIDTH);
+    headerCanvasEl.setAttribute("aria-label", title + " — " + subtitle);
+
+    window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 3);
+    footerCanvasEl.setAttribute("aria-label", body);
 
     if (data.image) {
         imageEl.alt = data.imageAlt || "";
@@ -69,6 +82,4 @@
         imageEl.style.display = "none";
         canvasEl.style.display = "none";
     }
-
-    bodyEl.textContent = data.body || window.FRAME_WEATHER || "";
 })();

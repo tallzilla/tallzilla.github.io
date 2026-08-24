@@ -60,52 +60,23 @@ body {
     display: block;
 }
 
-.frame__header {
+/* text-canvas.js draws the title/date and caption boxes itself (white
+   fill, black border, black text) onto these canvases and hard-thresholds
+   every pixel to pure black/white — plain DOM text looked fuzzy on the
+   real eink device because its anti-aliased glyph edges were getting
+   redithered by whatever converts the page for the panel. Canvas sizing
+   (width/height) is set in JS to fit the actual drawn content, so no
+   width/height is set here. */
+.frame__header-canvas {
     position: absolute;
     top: 32px;
     left: 32px;
-    width: fit-content;
-    max-width: calc(100% - 64px);
-    background: #fff;
-    border: 4px solid #000;
-    padding: 24px 32px;
+    display: block;
 }
 
-.frame__title {
-    margin: 0;
-    font-size: 56px;
-    font-weight: 700;
-    line-height: 1.15;
-    color: #000;
-}
-
-.frame__subtitle {
-    margin: 10px 0 0;
-    font-size: 24px;
-    font-weight: 400;
-    color: #000;
-}
-
-.frame__footer {
+.frame__footer-canvas {
     position: absolute;
     bottom: 32px;
     left: 32px;
-    right: 32px;
-    background: #fff;
-    border: 4px solid #000;
-    padding: 20px 32px;
-}
-
-.frame__body {
-    margin: 0;
-    font-size: 26px;
-    line-height: 1.4;
-    color: #000;
-
-    /* clamp to ~3 lines so a long caption can't grow past the space it's
-       meant to take up */
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    display: block;
 }
