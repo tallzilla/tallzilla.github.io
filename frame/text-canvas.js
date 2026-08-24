@@ -74,6 +74,22 @@
             contentHeight += (block.marginTop || 0) + block.lines.length * block.lineHeight;
         });
 
+        // Each line gets a full lineHeight-tall slot, but actual glyph ink
+        // doesn't fill it (lineHeight includes leading for comfortable
+        // multi-line spacing) — for every line except the last, that slack
+        // just becomes the gap before the next line, which looks right.
+        // For the very last line specifically, there's nothing after it to
+        // "use" that slack, so it reads as extra padding below the text
+        // that the top of the box doesn't have. Trim it so the box hugs
+        // the last line's real ink, keeping top/bottom padding symmetric.
+        var lastBlock = blocks[blocks.length - 1];
+        var lastLine = lastBlock.lines[lastBlock.lines.length - 1];
+        var measureCtx = canvasEl.getContext("2d");
+        measureCtx.font = lastBlock.font;
+        var metrics = measureCtx.measureText(lastLine);
+        var tightLastLineHeight = (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0);
+        contentHeight -= Math.max(0, lastBlock.lineHeight - tightLastLineHeight);
+
         var width = Math.ceil(contentWidth) + PADDING * 2 + BORDER * 2;
         var height = Math.ceil(contentHeight) + PADDING * 2 + BORDER * 2;
         canvasEl.width = width;
