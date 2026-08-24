@@ -82,7 +82,16 @@ async function renderDithered(sourceImg, canvasEl) {
         // up additional asset files (a .wasm module, a Worker script) for
         // a speed-up that doesn't matter at this image size.
         processingEngine: "js",
-        adjustmentEngine: "js"
+        adjustmentEngine: "js",
+        // Comic art is basically line art — heavy black ink outlines
+        // around every character/panel border — and plain error diffusion
+        // was letting dither speckle bleed into those lines, making them
+        // read as noisy instead of solid. Both options default to
+        // disabled; a side-by-side test on the current comic image showed
+        // a clear improvement (cleaner ink lines) with no visible downside
+        // elsewhere, so both are on.
+        edgePreservation: { enabled: true },
+        edgeAntialiasing: { enabled: true }
     });
 
     return true;
