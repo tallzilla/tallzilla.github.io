@@ -1,6 +1,6 @@
-/* Layout for the ReTerminal E1004 eink frame, mounted landscape
-   (1600x1200). Kept high-contrast (black on white) and free of
-   gradients/animation since eink refreshes slowly and renders grayscale. */
+/* Layout for the ReTerminal E1004 eink frame (1600x1200 landscape).
+   Kept high-contrast (black on white) and free of gradients/animation
+   since eink refreshes slowly and renders grayscale. */
 
 * {
     box-sizing: border-box;
@@ -31,14 +31,32 @@ body {
     color: #000;
     overflow: hidden;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     padding: 64px;
-    gap: 48px;
+}
+
+.frame__header {
+    flex: 0 0 auto;
+}
+
+.frame__title {
+    margin: 0;
+    font-size: 56px;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.frame__subtitle {
+    margin: 10px 0 0;
+    font-size: 24px;
+    font-weight: 400;
+    color: #444;
 }
 
 .frame__image-wrap {
     flex: 1 1 auto;
-    min-width: 0;
+    min-height: 0;
+    margin-top: 32px;
     background: #f2f2f2;
     border: 1px solid #ddd;
     display: flex;
@@ -54,42 +72,22 @@ body {
     display: block;
 }
 
-.frame__sidebar {
-    flex: 0 0 420px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-.frame__header {
-    flex: 0 0 auto;
-}
-
-.frame__title {
-    margin: 0;
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1.15;
-}
-
-.frame__subtitle {
-    margin: 12px 0 0;
-    font-size: 24px;
-    font-weight: 400;
-    color: #444;
-}
-
 .frame__footer {
-    flex: 1 1 auto;
-    min-height: 0;
+    flex: 0 0 auto;
     margin-top: 32px;
-    padding-top: 24px;
+    padding-top: 20px;
     border-top: 1px solid #000;
-    overflow: hidden;
 }
 
 .frame__body {
     margin: 0;
-    font-size: 28px;
+    font-size: 26px;
     line-height: 1.4;
+
+    /* clamp to ~3 lines so a long caption can't push the footer taller
+       than the space the flex layout budgeted for it */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
