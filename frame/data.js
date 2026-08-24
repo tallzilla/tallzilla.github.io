@@ -40,7 +40,7 @@ window.FRAME_DATA = {
     name: null,
     subtitle: null,
     timeZone: null,
-    image: "https://static.wikia.nocookie.net/marveldatabase/images/e/e0/Peter_Parker_%28Earth-616%29_from_Amazing_Fantasy_Vol_1_15_003.jpg/revision/latest/scale-to-height-down/1200?cb=20260612035534",
-    imageAlt: "Peter Parker becomes Spider-Man, Amazing Fantasy Vol 1 15",
+    image: "images/yosemite.jpg",
+    imageAlt: "Yosemite National Park",
     body: null
 };

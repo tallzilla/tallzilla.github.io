@@ -71,20 +71,53 @@
     window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 4);
     footerCanvasEl.setAttribute("aria-label", body);
 
+    // Attempts one <img> load, resolving true/false for success/failure.
+    // useCrossOrigin requests the image in CORS mode, needed so the canvas
+    // below can read its pixels back out for dithering — but some hosts'
+    // CORS policy only allowlists their own site (not "*"), and a browser
+    // makes that a hard failure for the whole request in CORS mode, not
+    // just a "can't read pixels later" restriction: the <img> never loads
+    // at all, not even to display undithered. So this is called twice —
+    // once with CORS to try for dithering, and if that outright fails,
+    // once more without it, so the image can still show up undithered
+    // rather than not appearing at all.
+    function tryLoadImage(src, useCrossOrigin) {
+        return new Promise(function (resolve) {
+            function cleanup() {
+                imageEl.onload = null;
+                imageEl.onerror = null;
+            }
+            imageEl.onload = function () {
+                cleanup();
+                resolve(true);
+            };
+            imageEl.onerror = function () {
+                cleanup();
+                resolve(false);
+            };
+            if (useCrossOrigin) {
+                imageEl.crossOrigin = "anonymous";
+            } else {
+                imageEl.removeAttribute("crossorigin");
+            }
+            imageEl.src = src;
+        });
+    }
+
     if (data.image) {
         imageEl.alt = data.imageAlt || "";
         imageEl.style.display = "";
         canvasEl.style.display = "none";
 
-        // Needed so the canvas below can read the image's pixels at all —
-        // without it, a cross-origin image taints the canvas and
-        // getImageData throws, which dither.js already falls back from,
-        // but skipping this means every cross-origin image would fail.
-        imageEl.crossOrigin = "anonymous";
-
-        imageEl.onload = function () {
-            if (data.dither === false || !window.FRAME_DITHER) {
+        tryLoadImage(data.image, true).then(function (loadedWithCors) {
+            return loadedWithCors ? true : tryLoadImage(data.image, false);
+        }).then(function (loaded) {
+            if (!loaded) {
+                imageEl.style.display = "none"; // genuinely broken image URL
                 return;
+            }
+            if (data.dither === false || !window.FRAME_DITHER || !imageEl.hasAttribute("crossorigin")) {
+                return; // no dithering attempt: opted out, or CORS load failed
             }
             canvasEl.width = FRAME_WIDTH;
             canvasEl.height = FRAME_HEIGHT;
@@ -94,12 +127,11 @@
                     canvasEl.style.display = "";
                 }
                 // else: leave the plain <img> visible (CSS
-                // object-fit:contain still applies), e.g. if the source
-                // blocks cross-origin pixel reads even with crossOrigin set.
+                // object-fit:contain still applies) — e.g. the source
+                // blocks cross-origin pixel reads even though the CORS
+                // load itself succeeded.
             });
-        };
-
-        imageEl.src = data.image;
+        });
     } else {
         imageEl.style.display = "none";
         canvasEl.style.display = "none";
