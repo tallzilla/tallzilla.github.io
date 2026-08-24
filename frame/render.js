@@ -6,8 +6,14 @@
     var data = window.FRAME_DATA || {};
 
     function todayFormatted() {
+        // Pin an explicit IANA timezone rather than trusting the rendering
+        // device's own clock/timezone setting (toLocaleDateString's default
+        // uses whatever timezone the device is configured for — if that's
+        // wrong or just different from yours, the date shown can be off by
+        // a day). Override via FRAME_DATA.timeZone in data.js if needed.
         var d = new Date();
-        return d.toLocaleDateString(undefined, {
+        return d.toLocaleDateString("en-US", {
+            timeZone: data.timeZone || "America/Los_Angeles",
             weekday: "long",
             year: "numeric",
             month: "long",
