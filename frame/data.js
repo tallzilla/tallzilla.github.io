@@ -26,7 +26,7 @@ window.FRAME_DATA = {
     title: "Good Morning, Bill",
     subtitle: null,
     timeZone: null,
-    image: "https://static0.srcdn.com/wordpress/wp-content/uploads/2021/10/Spider-Man-comics.jpg?q=50&fit=crop&w=1600&h=1200&dpr=1.5",
-    imageAlt: "Spider-Man comics",
+    image: "https://static.wikia.nocookie.net/marveldatabase/images/e/e0/Peter_Parker_%28Earth-616%29_from_Amazing_Fantasy_Vol_1_15_003.jpg/revision/latest/scale-to-height-down/1200?cb=20260612035534",
+    imageAlt: "Peter Parker becomes Spider-Man, Amazing Fantasy Vol 1 15",
     body: null
 };
