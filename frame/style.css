@@ -1,6 +1,6 @@
-/* Layout for the ReTerminal E1004 eink frame (1200x1600 portrait).
-   Kept high-contrast (black on white) and free of gradients/animation
-   since eink refreshes slowly and renders grayscale. */
+/* Layout for the ReTerminal E1004 eink frame, mounted landscape
+   (1600x1200). Kept high-contrast (black on white) and free of
+   gradients/animation since eink refreshes slowly and renders grayscale. */
 
 * {
     box-sizing: border-box;
@@ -12,7 +12,7 @@ html, body {
     width: 100%;
     height: 100%;
     background: #333; /* only visible when previewing in a browser window
-                          larger than 1200x1600 — the device's own capture
+                          larger than 1600x1200 — the device's own capture
                           viewport matches the frame exactly, so this never
                           shows up in the actual eink render */
 }
@@ -25,38 +25,20 @@ body {
 }
 
 .frame {
-    width: 1200px;
-    height: 1600px;
+    width: 1600px;
+    height: 1200px;
     background: #fff;
     color: #000;
     overflow: hidden;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     padding: 64px;
-}
-
-.frame__header {
-    flex: 0 0 auto;
-}
-
-.frame__title {
-    margin: 0;
-    font-size: 64px;
-    font-weight: 700;
-    line-height: 1.15;
-}
-
-.frame__subtitle {
-    margin: 12px 0 0;
-    font-size: 28px;
-    font-weight: 400;
-    color: #444;
+    gap: 48px;
 }
 
 .frame__image-wrap {
     flex: 1 1 auto;
-    min-height: 0;
-    margin-top: 40px;
+    min-width: 0;
     background: #f2f2f2;
     border: 1px solid #ddd;
     display: flex;
@@ -72,22 +54,42 @@ body {
     display: block;
 }
 
-.frame__footer {
+.frame__sidebar {
+    flex: 0 0 420px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.frame__header {
     flex: 0 0 auto;
-    margin-top: 40px;
+}
+
+.frame__title {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.frame__subtitle {
+    margin: 12px 0 0;
+    font-size: 24px;
+    font-weight: 400;
+    color: #444;
+}
+
+.frame__footer {
+    flex: 1 1 auto;
+    min-height: 0;
+    margin-top: 32px;
     padding-top: 24px;
     border-top: 1px solid #000;
+    overflow: hidden;
 }
 
 .frame__body {
     margin: 0;
-    font-size: 32px;
+    font-size: 28px;
     line-height: 1.4;
-
-    /* clamp to ~4 lines so a long caption can't push the footer taller
-       than the space the flex layout budgeted for it */
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
 }
