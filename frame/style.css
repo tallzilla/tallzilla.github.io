@@ -48,6 +48,18 @@ body {
     display: block;
 }
 
+/* dither.js draws a Spectra-6-quantized version of .frame__image into this
+   canvas (sized to the frame's own pixel dimensions, so no object-fit is
+   needed — the letterboxing/centering math is already baked into the
+   pixels) and swaps it in over the plain <img> once ready. */
+.frame__canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
 .frame__header {
     position: absolute;
     top: 32px;
