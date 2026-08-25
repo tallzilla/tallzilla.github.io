@@ -1,12 +1,21 @@
 // Curated list of public-domain artworks, sourced from the Art Institute of
-// Chicago's open API (api.artic.edu), filtered on two criteria: aspect
+// Chicago's open API (api.artic.edu), filtered on three criteria: aspect
 // ratio close to the frame's own 1600x1200 (roughly 10% cover-crop or
-// less), and physical size within about 2x the frame's actual ~10.6x8in
-// (27x20cm) footprint, so a piece isn't downscaled from something much
-// larger than the display -- these are mostly smaller-format paintings,
-// oil sketches, and prints rather than room-scale gallery canvases.
-// render.js picks one at random on every page load when data.js's "image"
-// is left null, and uses title/artist/date to build the header text.
+// less), physical size within about 2x the frame's actual ~10.6x8in
+// (27x20cm) footprint (so a piece isn't downscaled from something much
+// larger than the display), and contrast -- a p95-p5 luminance range of at
+// least ~65 out of 255, measured on a downscaled sample. That last one
+// matters specifically for the 6-color Spectra palette: a genuinely faint
+// piece (a pale pencil sketch, a soft pastel with huge low-contrast sky/
+// sand areas) doesn't just look muted after dithering, it disappears
+// almost entirely, since there's barely any tonal separation for the
+// palette to work with. Rejecting those at selection time is the fix, not
+// trying to contrast-correct them at render time -- tried that first
+// (tone mapping + dynamic range compression) and even a heavy-handed
+// version only partially recovered a piece that was a lost cause to begin
+// with. render.js picks one at random on every page load when data.js's
+// "image" is left null, and uses title/artist/date to build the header
+// text.
 //
 // Images are self-hosted at frame/images/art/{image_id}.jpg rather than
 // hotlinked from AIC live -- AIC's CORS is permissive (confirmed working
@@ -19,7 +28,11 @@
 // query[term][is_public_domain]=true and fields including
 // dimensions_detail (physical size in cm comes back directly, no extra
 // call needed) -- keep width/height within ~2x of 27x20cm and the
-// width/height ratio within about 1.2-1.48 -- then download it --
+// width/height ratio within about 1.2-1.48. Then download a preview size
+// and check contrast before committing to the full download: draw it to a
+// canvas, compute the luminance (0.299r+0.587g+0.114b) p5/p95 percentiles
+// over the pixels, and only keep it if p95-p5 is at least ~65. Then
+// download the full size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
 // into frame/images/art/{image_id}.jpg and add an entry below.
 
@@ -61,16 +74,16 @@ window.FRAME_ARTWORKS = [
         date: "c. 1640"
     },
     {
-        image: "images/art/813a7de0-60fc-8dfc-6bbd-8d93879e8778.jpg",
-        title: "Beach at Low Tide (Mouth of the River)",
-        artist: "Edgar Degas",
-        date: "1869"
+        image: "images/art/e1bc0d4a-8953-3446-351c-accf5c671434.jpg",
+        title: "Broad Street, Stirling",
+        artist: "David Young Cameron",
+        date: "1899"
     },
     {
-        image: "images/art/b0fa4234-a3a4-8db1-60e6-55b6fb046fac.jpg",
-        title: "Geese in a Farmyard",
-        artist: "Jean François Millet",
-        date: "c. 1871"
+        image: "images/art/e1826a0c-e20a-0e5e-a9e3-abf4fe123884.jpg",
+        title: "Head of a Roebuck and Two Ptarmigan",
+        artist: "Edwin Henry Landseer",
+        date: "c. 1830"
     },
     {
         image: "images/art/ea1d1e32-31ee-a309-b039-5add2f10fb9f.jpg",
