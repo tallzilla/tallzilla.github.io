@@ -17,9 +17,19 @@
 // only matters if you separately call replaceColors() to feed a physical
 // EPD controller, which doesn't apply here since /frame is just a web page
 // that gets screenshotted, not written to a display driver directly.
+//
+// The library ships several independently-calibrated Spectra 6 palettes
+// (aitjcizeSpectra6Palette, spectra6Palette, spectra6BoeberPalette, etc.) —
+// different people's measurements of the same panel type, not necessarily
+// of this exact unit. Using spectra6BoeberPalette here specifically
+// because its red (#ea4843, a bright coral) reads much closer to true red
+// than aitjcizeSpectra6Palette's red (#871300, a dark brick) — the latter
+// is what every example in the library's own README uses, but it looked
+// too dark on the actual device. Every color in Boeber's set runs brighter
+// across the board (white, blue, green too), not just red.
 import {
     ditherImage,
-    aitjcizeSpectra6Palette
+    spectra6BoeberPalette
 } from "./vendor/epdoptimize.mjs";
 
 // Draws sourceImg onto canvasEl at canvasEl's existing width/height using
@@ -72,7 +82,7 @@ async function renderDithered(sourceImg, canvasEl) {
     // against the calibrated palette with no extra tone adjustment and
     // looked correct in a side-by-side test.
     await ditherImage(inputCanvas, canvasEl, {
-        palette: aitjcizeSpectra6Palette,
+        palette: spectra6BoeberPalette,
         processingPreset: "balanced",
         ditheringType: "errorDiffusion",
         errorDiffusionMatrix: "floydSteinberg",
@@ -98,6 +108,6 @@ async function renderDithered(sourceImg, canvasEl) {
 }
 
 window.FRAME_DITHER = {
-    palette: aitjcizeSpectra6Palette,
+    palette: spectra6BoeberPalette,
     renderDithered: renderDithered
 };
