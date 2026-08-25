@@ -33,8 +33,9 @@ import {
 } from "./vendor/epdoptimize.mjs";
 
 // Draws sourceImg onto canvasEl at canvasEl's existing width/height using
-// the same centering math as CSS object-fit:contain, filling any letterbox
-// margin with black, then dithers the result to the Spectra 6 palette.
+// the same math as CSS object-fit:cover — scaled up to fill the frame
+// completely, center-cropping whatever overflows the shorter axis, no
+// letterbox bars — then dithers the result to the Spectra 6 palette.
 // Returns a Promise<boolean> — true on success; false (leaving canvasEl
 // untouched) if the canvas is CORS-tainted or the image has no usable
 // dimensions — callers should fall back to the plain <img> in that case.
@@ -53,10 +54,11 @@ async function renderDithered(sourceImg, canvasEl) {
     inputCanvas.height = frameHeight;
     var inputCtx = inputCanvas.getContext("2d");
 
-    inputCtx.fillStyle = "#000";
-    inputCtx.fillRect(0, 0, frameWidth, frameHeight);
-
-    var scale = Math.min(frameWidth / iw, frameHeight / ih);
+    // Cover-fit (like CSS object-fit:cover): scale up to fill the frame
+    // completely on both axes, center-cropping whatever overflows the
+    // shorter axis, rather than contain-fit's letterbox bars. No black
+    // fill needed first since the image always covers every pixel.
+    var scale = Math.max(frameWidth / iw, frameHeight / ih);
     var drawW = iw * scale;
     var drawH = ih * scale;
     var dx = (frameWidth - drawW) / 2;

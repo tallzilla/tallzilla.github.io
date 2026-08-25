@@ -130,7 +130,15 @@
     function renderHeader(canvasEl, title, subtitleLines, maxContentWidth) {
         var ctx = canvasEl.getContext("2d");
         var titleFont = "bold 72px " + FONT_FAMILY;
-        var subtitleFont = "600 30px " + FONT_FAMILY;
+        // First subtitle line (the artist) keeps the bold/upright style;
+        // the second (piece name + year) is deliberately lighter — unbold,
+        // a touch smaller, italic — so it reads as a caption/citation
+        // rather than competing with the artist's name.
+        var subtitleFonts = [
+            "600 30px " + FONT_FAMILY,
+            "italic 400 26px " + FONT_FAMILY
+        ];
+        var subtitleLineHeights = [36, 32];
 
         ctx.font = titleFont;
         var titleLines = clampLines(ctx, wrapText(ctx, title, maxContentWidth), maxContentWidth, 2);
@@ -138,9 +146,11 @@
         var blocks = [{ font: titleFont, lineHeight: 83, marginTop: 0, lines: titleLines }];
 
         (subtitleLines || []).filter(Boolean).forEach(function (text, i) {
-            ctx.font = subtitleFont;
+            var font = subtitleFonts[i] || subtitleFonts[subtitleFonts.length - 1];
+            var lineHeight = subtitleLineHeights[i] || subtitleLineHeights[subtitleLineHeights.length - 1];
+            ctx.font = font;
             var lines = clampLines(ctx, wrapText(ctx, text, maxContentWidth), maxContentWidth, 2);
-            blocks.push({ font: subtitleFont, lineHeight: 36, marginTop: i === 0 ? 12 : 4, lines: lines });
+            blocks.push({ font: font, lineHeight: lineHeight, marginTop: i === 0 ? 12 : 4, lines: lines });
         });
 
         var contentWidth = 0;
