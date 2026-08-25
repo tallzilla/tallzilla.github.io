@@ -19,8 +19,13 @@
 //                guaranteed to match yours. Leave as null to keep the
 //                default (America/Los_Angeles).
 //   image      — path (or full URL) to the image to display, relative to
-//                this folder unless it starts with http
-//   imageAlt   — alt text for the image (not shown on screen, just a11y)
+//                this folder unless it starts with http. Leave as null to
+//                show a random painting from frame/artworks.js instead (a
+//                curated list of public-domain works from the Art
+//                Institute of Chicago's API) — a different one each time
+//                the page loads.
+//   imageAlt   — alt text for the image (not shown on screen, just a11y).
+//                Ignored when image is null; artworks.js supplies its own.
 //   dither     — set to false to show the image as-is (plain browser
 //                downscaling) instead of quantizing/dithering it to the
 //                display's 6-color Spectra palette (see dither.js). Leave
@@ -40,7 +45,7 @@ window.FRAME_DATA = {
     name: null,
     subtitle: null,
     timeZone: null,
-    image: "images/kandinsky-370.jpg",
-    imageAlt: "Wassily Kandinsky, Farbstudie Quadrate (Color Study: Squares with Concentric Circles), 1913",
+    image: null,
+    imageAlt: null,
     body: null
 };

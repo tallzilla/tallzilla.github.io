@@ -104,13 +104,25 @@
         });
     }
 
-    if (data.image) {
-        imageEl.alt = data.imageAlt || "";
+    // data.image left null picks a random entry from window.FRAME_ARTWORKS
+    // (frame/artworks.js) instead — a fresh painting each time the page is
+    // loaded, rather than one fixed image. Math.random() here is plain
+    // synchronous JS, not a network call, so there's no async-timing risk
+    // like the old client-side weather fetch had.
+    var artworkPick = null;
+    if (!data.image && window.FRAME_ARTWORKS && window.FRAME_ARTWORKS.length) {
+        artworkPick = window.FRAME_ARTWORKS[Math.floor(Math.random() * window.FRAME_ARTWORKS.length)];
+    }
+    var image = data.image || (artworkPick && artworkPick.image) || null;
+    var imageAlt = data.imageAlt || (artworkPick && artworkPick.imageAlt) || "";
+
+    if (image) {
+        imageEl.alt = imageAlt;
         imageEl.style.display = "";
         canvasEl.style.display = "none";
 
-        tryLoadImage(data.image, true).then(function (loadedWithCors) {
-            return loadedWithCors ? true : tryLoadImage(data.image, false);
+        tryLoadImage(image, true).then(function (loadedWithCors) {
+            return loadedWithCors ? true : tryLoadImage(image, false);
         }).then(function (loaded) {
             if (!loaded) {
                 imageEl.style.display = "none"; // genuinely broken image URL
