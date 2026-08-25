@@ -88,9 +88,9 @@
     window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 4);
     footerCanvasEl.setAttribute("aria-label", body);
 
-    var timestamp = nowFormatted();
+    var timestamp = "updated @ " + nowFormatted().replace(" ", "");
     window.FRAME_TEXT_CANVAS.renderTimestamp(timestampCanvasEl, timestamp);
-    timestampCanvasEl.setAttribute("aria-label", "Rendered at " + timestamp);
+    timestampCanvasEl.setAttribute("aria-label", "Rendered at " + nowFormatted());
 
     // Attempts one <img> load, resolving true/false for success/failure.
     // useCrossOrigin requests the image in CORS mode, needed so the canvas

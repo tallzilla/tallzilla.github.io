@@ -202,8 +202,8 @@
     // stroke is what keeps it legible against dark parts of the image
     // instead of an opaque background.
     function renderTimestamp(canvasEl, text) {
-        var font = "700 22px " + FONT_FAMILY;
-        var strokeWidth = 4;
+        var font = "700 14px " + FONT_FAMILY;
+        var strokeWidth = 3;
         var pad = Math.ceil(strokeWidth / 2) + 1;
 
         var ctx = canvasEl.getContext("2d");

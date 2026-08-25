@@ -82,12 +82,14 @@ body {
 }
 
 /* Small render-timestamp stamp -- unlike the boxes above, this one has no
-   background of its own (text-canvas.js draws it on a transparent canvas),
-   so it sits flush in the corner rather than inset to line up with a box
-   border. */
+   background of its own (text-canvas.js draws it on a transparent canvas).
+   The footer box spans a fixed width (nearly edge to edge, not hugging its
+   text), so this can't sit beside it without overlapping -- it goes below
+   instead, in the 32px gap between the footer box's bottom edge and the
+   frame's own bottom edge. */
 .frame__timestamp-canvas {
     position: absolute;
-    bottom: 16px;
-    right: 16px;
+    bottom: 6px;
+    right: 12px;
     display: block;
 }
