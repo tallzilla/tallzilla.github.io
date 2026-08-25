@@ -59,7 +59,6 @@ async function main() {
     const low = Math.round(daily.temperature_2m_min[0]);
     const description = WEATHER_CODES[code] || "Weather conditions";
     const currentTemp = Math.round(json.current.temperature_2m);
-    const time = formatTime12h(json.current.time);
 
     // Naive local timestamps sort lexically same as chronologically within
     // a single day, so plain string comparison against current.time works.
@@ -73,7 +72,7 @@ async function main() {
         astro = "Sunrise tomorrow at " + formatTime12h(daily.sunrise[1]);
     }
 
-    const caption = currentTemp + "°F at " + time + ", with a high near " +
+    const caption = currentTemp + "°F, with a high near " +
         high + "°F and a low around " + low + "°F overnight. " +
         astro + ". " + description + " expected.";
 

@@ -39,8 +39,22 @@
         });
     }
 
+    // Unlike the weather caption's time (baked in by the scheduled GitHub
+    // Action, so only accurate to within ~2 hours), this reflects the
+    // actual moment this page rendered — the closest client-side proxy for
+    // "when was this capture taken."
+    function nowFormatted() {
+        var d = new Date();
+        return d.toLocaleTimeString("en-US", {
+            timeZone: data.timeZone || "America/Los_Angeles",
+            hour: "numeric",
+            minute: "2-digit"
+        });
+    }
+
     var headerCanvasEl = document.getElementById("frame-header-canvas");
     var footerCanvasEl = document.getElementById("frame-footer-canvas");
+    var timestampCanvasEl = document.getElementById("frame-timestamp-canvas");
     var imageEl = document.getElementById("frame-image");
     var canvasEl = document.getElementById("frame-canvas");
 
@@ -73,6 +87,10 @@
 
     window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 4);
     footerCanvasEl.setAttribute("aria-label", body);
+
+    var timestamp = nowFormatted();
+    window.FRAME_TEXT_CANVAS.renderTimestamp(timestampCanvasEl, timestamp);
+    timestampCanvasEl.setAttribute("aria-label", "Rendered at " + timestamp);
 
     // Attempts one <img> load, resolving true/false for success/failure.
     // useCrossOrigin requests the image in CORS mode, needed so the canvas

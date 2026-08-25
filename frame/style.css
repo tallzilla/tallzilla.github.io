@@ -80,3 +80,14 @@ body {
     left: 32px;
     display: block;
 }
+
+/* Small render-timestamp stamp -- unlike the boxes above, this one has no
+   background of its own (text-canvas.js draws it on a transparent canvas),
+   so it sits flush in the corner rather than inset to line up with a box
+   border. */
+.frame__timestamp-canvas {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    display: block;
+}

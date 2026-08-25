@@ -27,6 +27,24 @@
         }
     }
 
+    // Same idea as threshold(), but for text drawn on a transparent
+    // background (no white box behind it) -- anti-aliased edge pixels snap
+    // to fully opaque black/white or fully transparent instead of all
+    // being forced opaque, so the untouched background stays see-through.
+    function thresholdKeepTransparency(imageData) {
+        var data = imageData.data;
+        for (var i = 0; i < data.length; i += 4) {
+            if (data[i + 3] < 128) {
+                data[i] = data[i + 1] = data[i + 2] = data[i + 3] = 0;
+                continue;
+            }
+            var luminance = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+            var v = luminance < THRESHOLD ? 0 : 255;
+            data[i] = data[i + 1] = data[i + 2] = v;
+            data[i + 3] = 255;
+        }
+    }
+
     // Greedy word-wrap using real glyph measurement. ctx.font must already
     // be set to the font this text will be drawn in.
     function wrapText(ctx, text, maxWidth) {
@@ -177,8 +195,44 @@
         ], contentWidth);
     }
 
+    // Renders a small black-text-with-white-stroke timestamp directly onto
+    // a transparent canvas -- no white box, unlike the header/footer, since
+    // the point is for it to sit quietly in the corner over the artwork
+    // rather than draw attention like the caption boxes do. The white
+    // stroke is what keeps it legible against dark parts of the image
+    // instead of an opaque background.
+    function renderTimestamp(canvasEl, text) {
+        var font = "700 22px " + FONT_FAMILY;
+        var strokeWidth = 4;
+        var pad = Math.ceil(strokeWidth / 2) + 1;
+
+        var ctx = canvasEl.getContext("2d");
+        ctx.font = font;
+        var metrics = ctx.measureText(text);
+        var textWidth = metrics.width;
+        var textHeight = (metrics.actualBoundingBoxAscent || 16) + (metrics.actualBoundingBoxDescent || 4);
+
+        canvasEl.width = Math.ceil(textWidth) + pad * 2;
+        canvasEl.height = Math.ceil(textHeight) + pad * 2;
+
+        ctx.font = font;
+        ctx.textBaseline = "top";
+        ctx.lineJoin = "round";
+        ctx.miterLimit = 2;
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = strokeWidth;
+        ctx.strokeText(text, pad, pad);
+        ctx.fillStyle = "#000";
+        ctx.fillText(text, pad, pad);
+
+        var imageData = ctx.getImageData(0, 0, canvasEl.width, canvasEl.height);
+        thresholdKeepTransparency(imageData);
+        ctx.putImageData(imageData, 0, 0);
+    }
+
     window.FRAME_TEXT_CANVAS = {
         renderHeader: renderHeader,
-        renderFooter: renderFooter
+        renderFooter: renderFooter,
+        renderTimestamp: renderTimestamp
     };
 })();
