@@ -3,19 +3,28 @@
 // ratio close to the frame's own 1600x1200 (roughly 10% cover-crop or
 // less), physical size within about 2x the frame's actual ~10.6x8in
 // (27x20cm) footprint (so a piece isn't downscaled from something much
-// larger than the display), and contrast -- a p95-p5 luminance range of at
-// least ~65 out of 255, measured on a downscaled sample. That last one
-// matters specifically for the 6-color Spectra palette: a genuinely faint
-// piece (a pale pencil sketch, a soft pastel with huge low-contrast sky/
-// sand areas) doesn't just look muted after dithering, it disappears
-// almost entirely, since there's barely any tonal separation for the
-// palette to work with. Rejecting those at selection time is the fix, not
-// trying to contrast-correct them at render time -- tried that first
-// (tone mapping + dynamic range compression) and even a heavy-handed
-// version only partially recovered a piece that was a lost cause to begin
-// with. render.js picks one at random on every page load when data.js's
-// "image" is left null, and uses title/artist/date to build the header
-// text.
+// larger than the display), and contrast -- measured on a downscaled
+// sample as the standard deviation of per-pixel luminance, required to be
+// at least ~42 out of 255. That last one matters specifically for the
+// 6-color Spectra palette: a genuinely faint piece (a pale pencil sketch, a
+// soft pastel with huge low-contrast sky/sand areas) doesn't just look
+// muted after dithering, it disappears almost entirely, since there's
+// barely any tonal separation for the palette to work with. Rejecting
+// those at selection time is the fix, not trying to contrast-correct them
+// at render time -- tried that first (tone mapping + dynamic range
+// compression) and even a heavy-handed version only partially recovered a
+// piece that was a lost cause to begin with.
+//
+// Note on the contrast check: a simple percentile range (p95-p5 luminance)
+// isn't reliable on its own -- it lets through pieces that are mostly
+// near-white with only a thin dark tail (a faint sketch with one small
+// dark detail can technically post a wide range while still reading as
+// washed-out everywhere else). Standard deviation catches that skew and is
+// the metric actually enforced now; the range is still worth glancing at
+// but isn't the gate.
+//
+// render.js picks one at random on every page load when data.js's "image"
+// is left null, and uses title/artist/date to build the header text.
 //
 // Images are self-hosted at frame/images/art/{image_id}.jpg rather than
 // hotlinked from AIC live -- AIC's CORS is permissive (confirmed working
@@ -30,79 +39,13 @@
 // call needed) -- keep width/height within ~2x of 27x20cm and the
 // width/height ratio within about 1.2-1.48. Then download a preview size
 // and check contrast before committing to the full download: draw it to a
-// canvas, compute the luminance (0.299r+0.587g+0.114b) p5/p95 percentiles
-// over the pixels, and only keep it if p95-p5 is at least ~65. Then
-// download the full size --
+// canvas, compute the luminance (0.299r+0.587g+0.114b) per pixel, and only
+// keep it if the standard deviation across all pixels is at least ~42.
+// Then download the full size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
 // into frame/images/art/{image_id}.jpg and add an entry below.
 
 window.FRAME_ARTWORKS = [
-    {
-        image: "images/art/36ac482d-4de7-d595-72fd-abee3f56f22f.jpg",
-        title: "A Study for the Card Players",
-        artist: "Paul Cézanne",
-        date: "1890–92"
-    },
-    {
-        image: "images/art/58f58363-f567-0e49-7956-d49400721b1c.jpg",
-        title: "St. Albert of Louvain",
-        artist: "Peter Paul Rubens",
-        date: "1620"
-    },
-    {
-        image: "images/art/2b5a8e62-4ad6-8175-89df-da09dd3db992.jpg",
-        title: "Landscape with Smokestacks",
-        artist: "Edgar Degas",
-        date: "c. 1890"
-    },
-    {
-        image: "images/art/1d3a275d-45dd-6026-b6ed-d7d8df417a3d.jpg",
-        title: "A Peasant Woman Digging in Front of Her Cottage",
-        artist: "Vincent van Gogh",
-        date: "c. 1885"
-    },
-    {
-        image: "images/art/5d824d6a-ac34-2946-4884-a3131f748ac1.jpg",
-        title: "A Bridge Near a Church in Venice",
-        artist: "Canaletto",
-        date: "c. 1720"
-    },
-    {
-        image: "images/art/5d3d7ee4-268d-97dd-b557-35c99edbca31.jpg",
-        title: "View of IJsselmonde Seen Across the New Maas",
-        artist: "Aelbert Cuyp",
-        date: "c. 1640"
-    },
-    {
-        image: "images/art/e1bc0d4a-8953-3446-351c-accf5c671434.jpg",
-        title: "Broad Street, Stirling",
-        artist: "David Young Cameron",
-        date: "1899"
-    },
-    {
-        image: "images/art/e1826a0c-e20a-0e5e-a9e3-abf4fe123884.jpg",
-        title: "Head of a Roebuck and Two Ptarmigan",
-        artist: "Edwin Henry Landseer",
-        date: "c. 1830"
-    },
-    {
-        image: "images/art/ea1d1e32-31ee-a309-b039-5add2f10fb9f.jpg",
-        title: "Study for The Feast of Love",
-        artist: "Jean Antoine Watteau",
-        date: "c. 1717"
-    },
-    {
-        image: "images/art/f4d85da1-5c80-3c7b-38cc-bf324d6ce670.jpg",
-        title: "The Cottage by the Roadside, Stormy Sky",
-        artist: "Jules Dupré",
-        date: "c. 1860"
-    },
-    {
-        image: "images/art/f3f1109a-5ca6-7bba-0a79-ebfdba2e4b6b.jpg",
-        title: "Landscape with Three Gabled Cottages Beside a Road",
-        artist: "Rembrandt van Rijn",
-        date: "1650"
-    },
     {
         image: "images/art/5873d7d7-732d-6e45-2bc0-8402afd7c0f0.jpg",
         title: "The Rapids, Hudson River, Adirondacks",
@@ -122,34 +65,10 @@ window.FRAME_ARTWORKS = [
         date: "c. 1830/33"
     },
     {
-        image: "images/art/d424c734-f5c1-5f89-3bb8-d83e4e0287e3.jpg",
-        title: "Flowers: Poppies and Daisies",
-        artist: "Odilon Redon",
-        date: "c. 1867"
-    },
-    {
-        image: "images/art/65e58fc4-4dd1-7149-b76b-94547745bece.jpg",
-        title: "Woman on Rose Divan",
-        artist: "Henri Matisse",
-        date: "1921"
-    },
-    {
         image: "images/art/a748474d-ba2f-d3e5-da04-05e525a3f37a.jpg",
         title: "Ship Building, Gloucester Harbor",
         artist: "Winslow Homer",
         date: "published October 11, 1873"
-    },
-    {
-        image: "images/art/e59fd119-a554-81c8-0de2-30e0626f870f.jpg",
-        title: "Landscape with Waterfalls and Bridges, Peasants in the Foreground",
-        artist: "Nicolaes Berchem, the Elder",
-        date: "c. 1670"
-    },
-    {
-        image: "images/art/c14bc8b2-d156-05c5-358d-abb30d056da0.jpg",
-        title: "The Approach to a Village",
-        artist: "Simon de Vlieger",
-        date: "n.d."
     },
     {
         image: "images/art/72a76270-d6f4-e744-d47b-307873a8e8ff.jpg",
@@ -176,28 +95,10 @@ window.FRAME_ARTWORKS = [
         date: "c. 1830/33"
     },
     {
-        image: "images/art/5bd2d27f-ad6f-2446-eefd-05ace768085e.jpg",
-        title: "The Astronomers",
-        artist: "Follower of Donato Creti",
-        date: "1711"
-    },
-    {
-        image: "images/art/bf4dfe53-5545-6f5e-5894-1e97753adb9a.jpg",
-        title: "Two Women Resting and Two Satyrs Dancing",
-        artist: "Claude Gillot",
-        date: "c. 1700–15"
-    },
-    {
         image: "images/art/a8e72155-62cd-c0e0-d7f3-57b2532654d4.jpg",
         title: "Malta, Harbor of Valletta",
         artist: "Abraham Storck",
         date: "1695"
-    },
-    {
-        image: "images/art/7abbfd97-fb03-2366-cfe5-b53738a3d93e.jpg",
-        title: "Roses in a Bowl",
-        artist: "Henri Fantin-Latour",
-        date: "1881"
     },
     {
         image: "images/art/862608e5-8953-b1a3-53fd-ec009662516f.jpg",
@@ -206,15 +107,123 @@ window.FRAME_ARTWORKS = [
         date: "1883"
     },
     {
-        image: "images/art/14034324-d772-46f3-e736-3adea64e4beb.jpg",
-        title: "Study of a Triton",
-        artist: "François Boucher",
-        date: "1748/53"
-    },
-    {
         image: "images/art/10c31086-2515-1348-2c37-ed41aaa7dc88.jpg",
         title: "Landscape",
         artist: "Théodore Rousseau",
         date: "c. 1835"
+    },
+    {
+        image: "images/art/1d3a275d-45dd-6026-b6ed-d7d8df417a3d.jpg",
+        title: "A Peasant Woman Digging in Front of Her Cottage",
+        artist: "Vincent van Gogh",
+        date: "c. 1885"
+    },
+    {
+        image: "images/art/e1bc0d4a-8953-3446-351c-accf5c671434.jpg",
+        title: "Broad Street, Stirling",
+        artist: "David Young Cameron",
+        date: "1899"
+    },
+    {
+        image: "images/art/e1826a0c-e20a-0e5e-a9e3-abf4fe123884.jpg",
+        title: "Head of a Roebuck and Two Ptarmigan",
+        artist: "Edwin Henry Landseer",
+        date: "c. 1830"
+    },
+    {
+        image: "images/art/f3f1109a-5ca6-7bba-0a79-ebfdba2e4b6b.jpg",
+        title: "Landscape with Three Gabled Cottages Beside a Road",
+        artist: "Rembrandt van Rijn",
+        date: "1650"
+    },
+    {
+        image: "images/art/30fb830f-664d-08b8-7e87-2d5cfebb61dd.jpg",
+        title: "Chair Seat",
+        artist: "Abigail Davenport Williams",
+        date: "c. 1717"
+    },
+    {
+        image: "images/art/85e92d7a-9d6e-28fe-db5a-f0a7244c3f1f.jpg",
+        title: "Self-Portrait Preparing an Etching",
+        artist: "Henri Charles Guérard",
+        date: "c. 1890"
+    },
+    {
+        image: "images/art/0ac9663b-e17e-471d-e4e3-6c60fc800704.jpg",
+        title: "Big River, from the Rancherie, Mendocino, California",
+        artist: "Carleton E. Watkins",
+        date: "1863"
+    },
+    {
+        image: "images/art/ad3280c6-611a-c136-29b8-8f303a02f416.jpg",
+        title: "Landscape with Figures",
+        artist: "Narcisse Virgile Diaz de la Peña",
+        date: "c. 1870"
+    },
+    {
+        image: "images/art/f33cab45-4591-d51f-76f3-9aa8076e033e.jpg",
+        title: "Ruins of the Palace of the Caesars in Rome, plate eight from Die Römische Ansichten",
+        artist: "Joseph Anton Koch",
+        date: "1810"
+    },
+    {
+        image: "images/art/a2e9aad2-dd14-ae12-6c44-6811229b3619.jpg",
+        title: "Landscape with Figures Crossing a Bridge",
+        artist: "John Rathbone",
+        date: "1790–1800"
+    },
+    {
+        image: "images/art/9fcd0220-7fcb-205c-163b-8a629004b33a.jpg",
+        title: "Landscape, Switzerland",
+        artist: "Adolphe Braun",
+        date: "c. 1860"
+    },
+    {
+        image: "images/art/b3af1961-f127-2a88-ef03-c2b03866956d.jpg",
+        title: "\"Fire!\", plate 35 from Types Parisiens",
+        artist: "Honoré Victorin Daumier",
+        date: "1839"
+    },
+    {
+        image: "images/art/eb2c6693-2a9e-7f31-9a13-9fbc4056325c.jpg",
+        title: "Ships in the Harbor at Sète",
+        artist: "Gustave Le Gray",
+        date: "1857"
+    },
+    {
+        image: "images/art/a08c2d95-70b8-51ad-962d-e3393833447c.jpg",
+        title: "Village Street",
+        artist: "Ernst Ludwig Kirchner",
+        date: "1906–09"
+    },
+    {
+        image: "images/art/eb55340f-ed2a-c068-e1fb-b51b60d9bbda.jpg",
+        title: "Hillside with Trees",
+        artist: "William Morris Hunt",
+        date: "1872–78"
+    },
+    {
+        image: "images/art/7a63b68a-a84f-87b0-80a4-2848404f1ad6.jpg",
+        title: "Moonlight Scene",
+        artist: "Unknown artist",
+        date: "19th century"
+    },
+    {
+        image: "images/art/a2c51713-67cc-adff-555c-928a8261d5ca.jpg",
+        title: "The Little Thatched Cottages",
+        artist: "Félix Hilaire Buhot",
+        date: "1878"
+    },
+    {
+        image: "images/art/7f4d28d4-dd4c-66a0-c388-f8093c4ca38b.jpg",
+        title: "A Winter Morning Shovelling Out",
+        artist: "Winslow Homer",
+        date: "published January 14, 1871"
+    },
+    {
+        image: "images/art/43f47517-f126-94f2-1608-df20f2a149f3.jpg",
+        title: "Scene near Bathford",
+        artist: "E. Parker",
+        date: "n.d."
     },
 ];
