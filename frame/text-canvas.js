@@ -120,10 +120,14 @@
         ctx.putImageData(imageData, 0, 0);
     }
 
-    // Renders the top-left title/date box. maxContentWidth bounds wrapping;
-    // the box itself is sized tightly to whatever the widest actual line is
-    // (like the old CSS width:fit-content), not always maxed out.
-    function renderHeader(canvasEl, title, subtitle, maxContentWidth) {
+    // Renders the top-left header box: one big title line (or two, if it
+    // wraps) followed by any number of equal-weight subtitle lines (e.g.
+    // artist, then "piece name, year") — each its own block so a long one
+    // wrapping to 2 lines doesn't affect the others. maxContentWidth bounds
+    // wrapping; the box itself is sized tightly to whatever the widest
+    // actual line is (like the old CSS width:fit-content), not always
+    // maxed out.
+    function renderHeader(canvasEl, title, subtitleLines, maxContentWidth) {
         var ctx = canvasEl.getContext("2d");
         var titleFont = "bold 72px " + FONT_FAMILY;
         var subtitleFont = "600 30px " + FONT_FAMILY;
@@ -131,19 +135,23 @@
         ctx.font = titleFont;
         var titleLines = clampLines(ctx, wrapText(ctx, title, maxContentWidth), maxContentWidth, 2);
 
-        ctx.font = subtitleFont;
-        var subtitleLines = clampLines(ctx, wrapText(ctx, subtitle, maxContentWidth), maxContentWidth, 1);
+        var blocks = [{ font: titleFont, lineHeight: 83, marginTop: 0, lines: titleLines }];
 
-        var contentWidth = 0;
-        titleLines.concat(subtitleLines).forEach(function (line, i) {
-            ctx.font = i < titleLines.length ? titleFont : subtitleFont;
-            contentWidth = Math.max(contentWidth, ctx.measureText(line).width);
+        (subtitleLines || []).filter(Boolean).forEach(function (text, i) {
+            ctx.font = subtitleFont;
+            var lines = clampLines(ctx, wrapText(ctx, text, maxContentWidth), maxContentWidth, 2);
+            blocks.push({ font: subtitleFont, lineHeight: 36, marginTop: i === 0 ? 12 : 4, lines: lines });
         });
 
-        drawBox(canvasEl, [
-            { font: titleFont, lineHeight: 83, marginTop: 0, lines: titleLines },
-            { font: subtitleFont, lineHeight: 36, marginTop: 12, lines: subtitleLines }
-        ], contentWidth);
+        var contentWidth = 0;
+        blocks.forEach(function (block) {
+            ctx.font = block.font;
+            block.lines.forEach(function (line) {
+                contentWidth = Math.max(contentWidth, ctx.measureText(line).width);
+            });
+        });
+
+        drawBox(canvasEl, blocks, contentWidth);
     }
 
     // Renders the bottom caption box, spanning a fixed content width

@@ -5,14 +5,15 @@
 // nothing else to redeploy.
 //
 //   title      — big headline at the top (keep it short, ~1 line). Leave as
-//                null to auto-show a time-of-day greeting ("Good Morning,
-//                Bill" / "Good Afternoon, Bill" / "Good Evening, Bill",
-//                based on the hour where timeZone below points) instead of
-//                typing one in by hand.
-//   name       — name used in the auto greeting above. Leave as null to
-//                default to "Bill". Ignored if title is set.
-//   subtitle   — small line under the title. Leave as null to auto-show
-//                today's date instead of typing one in by hand.
+//                null to auto-show today's date instead of typing one in
+//                by hand — that's the frame's main piece of information at
+//                a glance.
+//   subtitle   — a single line under the title, used only as a fallback
+//                when there's no artwork to show (i.e. image is set to a
+//                specific path/URL rather than left null). When image is
+//                left null, the two lines under the title are always the
+//                picked artwork's artist, then its title and year — this
+//                field is ignored in that case.
 //   timeZone   — IANA timezone (e.g. "America/Los_Angeles") used for the
 //                auto date above. Pinned explicitly rather than left to
 //                the rendering device's own clock, since that's not
@@ -42,7 +43,6 @@
 
 window.FRAME_DATA = {
     title: null,
-    name: null,
     subtitle: null,
     timeZone: null,
     image: null,

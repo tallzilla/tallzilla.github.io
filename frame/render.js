@@ -39,34 +39,37 @@
         });
     }
 
-    function greetingForHour() {
-        var hourStr = new Date().toLocaleString("en-US", {
-            timeZone: data.timeZone || "America/Los_Angeles",
-            hour: "numeric",
-            hour12: false
-        });
-        var hour = parseInt(hourStr, 10) % 24; // some engines report midnight as "24"
-
-        if (hour < 12) {
-            return "Good Morning";
-        }
-        if (hour < 17) {
-            return "Good Afternoon";
-        }
-        return "Good Evening";
-    }
-
     var headerCanvasEl = document.getElementById("frame-header-canvas");
     var footerCanvasEl = document.getElementById("frame-footer-canvas");
     var imageEl = document.getElementById("frame-image");
     var canvasEl = document.getElementById("frame-canvas");
 
-    var title = data.title || (greetingForHour() + ", " + (data.name || "Bill"));
-    var subtitle = data.subtitle || todayFormatted();
+    // data.image left null picks a random entry from window.FRAME_ARTWORKS
+    // (frame/artworks.js) instead — a fresh painting each time the page is
+    // loaded, rather than one fixed image. Math.random() here is plain
+    // synchronous JS, not a network call, so there's no async-timing risk
+    // like the old client-side weather fetch had. Computed before the
+    // header, since the header shows this artwork's own title/artist.
+    var artworkPick = null;
+    if (!data.image && window.FRAME_ARTWORKS && window.FRAME_ARTWORKS.length) {
+        artworkPick = window.FRAME_ARTWORKS[Math.floor(Math.random() * window.FRAME_ARTWORKS.length)];
+    }
+    var image = data.image || (artworkPick && artworkPick.image) || null;
+
+    // The date is the main thing this frame shows at a glance, so it's the
+    // big title now — not a personal greeting. Below it, two equal-weight
+    // lines: the artwork's artist, then its title and year. Falls back to
+    // data.subtitle as a single line if there's no artwork (a manually
+    // pinned data.image with no matching frame/artworks.js entry).
+    var title = data.title || todayFormatted();
+    var subtitleLines = artworkPick
+        ? [artworkPick.artist, artworkPick.title + (artworkPick.date ? ", " + artworkPick.date : "")]
+        : (data.subtitle ? [data.subtitle] : []);
+    var imageAlt = data.imageAlt || (artworkPick && (artworkPick.title + ", " + artworkPick.artist + ", " + artworkPick.date)) || "";
     var body = data.body || window.FRAME_WEATHER || "";
 
-    window.FRAME_TEXT_CANVAS.renderHeader(headerCanvasEl, title, subtitle, TEXT_MAX_CONTENT_WIDTH);
-    headerCanvasEl.setAttribute("aria-label", title + " — " + subtitle);
+    window.FRAME_TEXT_CANVAS.renderHeader(headerCanvasEl, title, subtitleLines, TEXT_MAX_CONTENT_WIDTH);
+    headerCanvasEl.setAttribute("aria-label", [title].concat(subtitleLines).join(" — "));
 
     window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 4);
     footerCanvasEl.setAttribute("aria-label", body);
@@ -103,18 +106,6 @@
             imageEl.src = src;
         });
     }
-
-    // data.image left null picks a random entry from window.FRAME_ARTWORKS
-    // (frame/artworks.js) instead — a fresh painting each time the page is
-    // loaded, rather than one fixed image. Math.random() here is plain
-    // synchronous JS, not a network call, so there's no async-timing risk
-    // like the old client-side weather fetch had.
-    var artworkPick = null;
-    if (!data.image && window.FRAME_ARTWORKS && window.FRAME_ARTWORKS.length) {
-        artworkPick = window.FRAME_ARTWORKS[Math.floor(Math.random() * window.FRAME_ARTWORKS.length)];
-    }
-    var image = data.image || (artworkPick && artworkPick.image) || null;
-    var imageAlt = data.imageAlt || (artworkPick && artworkPick.imageAlt) || "";
 
     if (image) {
         imageEl.alt = imageAlt;
