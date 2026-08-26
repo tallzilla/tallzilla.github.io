@@ -87,13 +87,11 @@ async function renderDithered(sourceImg, canvasEl) {
         ditheringType: "errorDiffusion",
         errorDiffusionMatrix: "floydSteinberg",
         serpentine: true,
-        // A small manual exposure/saturation/contrast boost — a
-        // side-by-side test showed noticeably punchier, less washed-out
-        // colors (less blue dither-speckle bleeding into yellows
-        // especially) with no visible downside. "contrast" mode is
-        // required for exposure/saturation/contrast to take effect at all
-        // (default mode "off" ignores them).
-        toneMapping: { mode: "contrast", exposure: 0.1, saturation: 0.1, contrast: 0.1 },
+        // Manual exposure/saturation/contrast boost, disabled for now.
+        // "contrast" mode is required for exposure/saturation/contrast to
+        // take effect at all (default mode "off" ignores them) — flip mode
+        // back to "contrast" to re-enable.
+        toneMapping: { mode: "off", exposure: 0.1, saturation: 0.1, contrast: 0.1 },
         // Force pure-JS processing: avoids pulling in the library's WASM/
         // Worker-accelerated paths, which would mean vendoring and wiring
         // up additional asset files (a .wasm module, a Worker script) for
