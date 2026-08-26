@@ -20,8 +20,22 @@
     // this is the content width left over after that inset plus the box's
     // own padding (32px) and border (4px) on each side. The header wraps
     // within this as a max-width (and hugs whatever the actual widest line
-    // is); the footer uses it as its fixed box width.
+    // is); the footer uses it as its fixed box width (or, when a manual
+    // data.body override is set, the single full-width footer box below).
     var TEXT_MAX_CONTENT_WIDTH = FRAME_WIDTH - 32 - 32 - 32 * 2 - 4 * 2;
+
+    // Normal (non-override) footer: two boxes side by side, weather at 1/5
+    // width and transit at 4/5, sharing the same 32px left/right inset and
+    // a gap between them. BOX_OVERHEAD is each box's own padding+border
+    // (32px padding + 4px border, both sides) that drawBox() adds on top of
+    // whatever contentWidth it's given.
+    var FOOTER_GAP = 24;
+    var BOX_OVERHEAD = 32 * 2 + 4 * 2;
+    var FOOTER_TOTAL_OUTER = FRAME_WIDTH - 32 - 32;
+    var WEATHER_BOX_OUTER = Math.round((FOOTER_TOTAL_OUTER - FOOTER_GAP) / 5);
+    var TRANSIT_BOX_OUTER = FOOTER_TOTAL_OUTER - FOOTER_GAP - WEATHER_BOX_OUTER;
+    var WEATHER_CONTENT_WIDTH = WEATHER_BOX_OUTER - BOX_OVERHEAD;
+    var TRANSIT_CONTENT_WIDTH = TRANSIT_BOX_OUTER - BOX_OVERHEAD;
 
     function todayFormatted() {
         // Pin an explicit IANA timezone rather than trusting the rendering
@@ -53,7 +67,8 @@
     }
 
     var headerCanvasEl = document.getElementById("frame-header-canvas");
-    var footerCanvasEl = document.getElementById("frame-footer-canvas");
+    var footerWeatherCanvasEl = document.getElementById("frame-footer-weather-canvas");
+    var footerTransitCanvasEl = document.getElementById("frame-footer-transit-canvas");
     var timestampCanvasEl = document.getElementById("frame-timestamp-canvas");
     var imageEl = document.getElementById("frame-image");
     var canvasEl = document.getElementById("frame-canvas");
@@ -80,13 +95,37 @@
         ? [artworkPick.artist, artworkPick.title + (artworkPick.date ? ", " + artworkPick.date : "")]
         : (data.subtitle ? [data.subtitle] : []);
     var imageAlt = data.imageAlt || (artworkPick && (artworkPick.title + ", " + artworkPick.artist + ", " + artworkPick.date)) || "";
-    var body = data.body || window.FRAME_WEATHER || "";
 
     window.FRAME_TEXT_CANVAS.renderHeader(headerCanvasEl, title, subtitleLines, TEXT_MAX_CONTENT_WIDTH);
     headerCanvasEl.setAttribute("aria-label", [title].concat(subtitleLines).join(" — "));
 
-    window.FRAME_TEXT_CANVAS.renderFooter(footerCanvasEl, body, TEXT_MAX_CONTENT_WIDTH, 4);
-    footerCanvasEl.setAttribute("aria-label", body);
+    // Weather (icon card) and transit are two separate boxes (1/5 + 4/5
+    // width) side by side. A manual data.body override replaces both with
+    // one full-width text box instead (the original layout), since there's
+    // no sensible way to split hand-written text into a weather card.
+    if (data.body) {
+        footerWeatherCanvasEl.style.display = "none";
+        footerTransitCanvasEl.style.left = "32px";
+        window.FRAME_TEXT_CANVAS.renderFooter(footerTransitCanvasEl, data.body, TEXT_MAX_CONTENT_WIDTH, 4);
+        footerTransitCanvasEl.setAttribute("aria-label", data.body);
+    } else {
+        var weather = window.FRAME_WEATHER || null;
+        var transitText = window.FRAME_TRANSIT || "";
+
+        // Transit renders first so its actual height (which varies with
+        // however many departures fall in the next-hour window) is known;
+        // the weather card is then sized to match exactly rather than the
+        // two boxes each computing their own height and drifting apart by
+        // a few px.
+        footerTransitCanvasEl.style.left = (32 + WEATHER_BOX_OUTER + FOOTER_GAP) + "px";
+        window.FRAME_TEXT_CANVAS.renderFooter(footerTransitCanvasEl, transitText, TRANSIT_CONTENT_WIDTH, 6);
+        footerTransitCanvasEl.setAttribute("aria-label", transitText);
+
+        footerWeatherCanvasEl.style.display = "";
+        footerWeatherCanvasEl.style.left = "32px";
+        window.FRAME_TEXT_CANVAS.renderWeatherCard(footerWeatherCanvasEl, weather, WEATHER_CONTENT_WIDTH, footerTransitCanvasEl.height);
+        footerWeatherCanvasEl.setAttribute("aria-label", weather ? weather.ariaLabel : "");
+    }
 
     var timestamp = "updated @ " + nowFormatted().replace(" ", "");
     window.FRAME_TEXT_CANVAS.renderTimestamp(timestampCanvasEl, timestamp);

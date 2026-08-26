@@ -1,0 +1,35 @@
+name: Update /frame transit
+
+on:
+  schedule:
+    - cron: "0 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-transit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: node frame/generate-transit.js
+        env:
+          TRANSIT_511_API_KEY: ${{ secrets.TRANSIT_511_API_KEY }}
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- frame/transit.js; then
+            echo "No transit change"
+          else
+            git add frame/transit.js
+            git commit -m "Update /frame transit"
+            git push
+          fi

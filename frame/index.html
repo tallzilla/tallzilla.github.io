@@ -18,7 +18,8 @@
         <canvas class="frame__canvas" id="frame-canvas"></canvas>
 
         <canvas class="frame__header-canvas" id="frame-header-canvas" role="img"></canvas>
-        <canvas class="frame__footer-canvas" id="frame-footer-canvas" role="img"></canvas>
+        <canvas class="frame__footer-canvas frame__footer-canvas--weather" id="frame-footer-weather-canvas" role="img"></canvas>
+        <canvas class="frame__footer-canvas frame__footer-canvas--transit" id="frame-footer-transit-canvas" role="img"></canvas>
         <canvas class="frame__timestamp-canvas" id="frame-timestamp-canvas" role="img"></canvas>
     </div>
 
@@ -29,6 +30,7 @@
          rather than mixing execution-order semantics. -->
     <script type="module" src="/frame/data.js"></script>
     <script type="module" src="/frame/weather.js"></script>
+    <script type="module" src="/frame/transit.js"></script>
     <script type="module" src="/frame/artworks.js"></script>
     <script type="module" src="/frame/dither.js"></script>
     <script type="module" src="/frame/text-canvas.js"></script>

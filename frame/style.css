@@ -74,10 +74,15 @@ body {
     display: block;
 }
 
+/* Two boxes (weather, transit) sit side by side on the same bottom edge —
+   render.js computes each one's width and sets `left` in JS, since it
+   depends on runtime math (1/5 vs 4/5 split of the available width), not a
+   fixed value CSS can express. Bottom-aligned rather than top-aligned so
+   two boxes of different heights (the narrow weather box usually wraps to
+   more lines) still sit on the same visual "shelf". */
 .frame__footer-canvas {
     position: absolute;
     bottom: 32px;
-    left: 32px;
     display: block;
 }
 

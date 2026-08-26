@@ -46,24 +46,26 @@
     }
 
     // Greedy word-wrap using real glyph measurement. ctx.font must already
-    // be set to the font this text will be drawn in.
+    // be set to the font this text will be drawn in. "\n" in the source
+    // text forces a line break (e.g. the transit caption puts each route on
+    // its own line) — each such paragraph is wrapped independently so a
+    // long one still soft-wraps instead of overflowing maxWidth.
     function wrapText(ctx, text, maxWidth) {
-        var words = text.split(/\s+/).filter(Boolean);
         var lines = [];
-        var current = "";
-
-        for (var i = 0; i < words.length; i++) {
-            var candidate = current ? current + " " + words[i] : words[i];
-            if (current && ctx.measureText(candidate).width > maxWidth) {
-                lines.push(current);
-                current = words[i];
-            } else {
-                current = candidate;
+        text.split("\n").forEach(function (paragraph) {
+            var words = paragraph.split(/\s+/).filter(Boolean);
+            var current = "";
+            for (var i = 0; i < words.length; i++) {
+                var candidate = current ? current + " " + words[i] : words[i];
+                if (current && ctx.measureText(candidate).width > maxWidth) {
+                    lines.push(current);
+                    current = words[i];
+                } else {
+                    current = candidate;
+                }
             }
-        }
-        if (current) {
             lines.push(current);
-        }
+        });
         return lines.length ? lines : [""];
     }
 
@@ -182,16 +184,143 @@
         drawBox(canvasEl, blocks, contentWidth);
     }
 
-    // Renders the bottom caption box, spanning a fixed content width
-    // (unlike the header, which hugs its text) and clamped to maxLines.
-    function renderFooter(canvasEl, body, contentWidth, maxLines) {
+    // Path data vendored from Lucide (lucide.dev, ISC license), not loaded
+    // at runtime — just the `d` attributes for the handful of weather icons
+    // this card needs, each in Lucide's native 24x24 viewBox with a plain
+    // stroke (no fill), matching the "simple black outline, hollow middle"
+    // look. sun.svg's <circle> is expressed as an equivalent two-arc path
+    // so every icon here is a flat array of Path2D-compatible `d` strings.
+    // See generate-weather.js's WEATHER_CODES for how a WMO code maps to
+    // one of these category names.
+    var WEATHER_ICON_PATHS = {
+        "clear": [ // lucide "sun"
+            "M8 12a4 4 0 1 0 8 0 4 4 0 1 0 -8 0",
+            "M12 2v2", "M12 20v2",
+            "m4.93 4.93 1.41 1.41", "m17.66 17.66 1.41 1.41",
+            "M2 12h2", "M20 12h2",
+            "m6.34 17.66-1.41 1.41", "m19.07 4.93-1.41 1.41"
+        ],
+        "partly-cloudy": [ // lucide "cloud-sun"
+            "M12 2v2", "m4.93 4.93 1.41 1.41", "M20 12h2", "m19.07 4.93-1.41 1.41",
+            "M15.947 12.65a4 4 0 0 0-5.925-4.128",
+            "M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"
+        ],
+        "cloudy": [ // lucide "cloud"
+            "M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"
+        ],
+        "fog": [ // lucide "cloud-fog"
+            "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+            "M16 17H7", "M17 21H9"
+        ],
+        "rain": [ // lucide "cloud-rain"
+            "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+            "M16 14v6", "M8 14v6", "M12 16v6"
+        ],
+        "snow": [ // lucide "cloud-snow"
+            "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242",
+            "M8 15h.01", "M8 19h.01", "M12 17h.01", "M12 21h.01", "M16 15h.01", "M16 19h.01"
+        ],
+        "thunder": [ // lucide "cloud-lightning"
+            "M6 16.326A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 .5 8.973",
+            "m13 12-3 5h4l-3 5"
+        ]
+    };
+
+    // Draws one weather icon inside the x,y,size square by stroking Lucide
+    // path data scaled from its native 24x24 viewBox — pure black stroke,
+    // hollow middle (no fill), matching every other icon in the set.
+    // renderWeatherCard() thresholds the whole canvas afterward like every
+    // other box here.
+    function drawWeatherIcon(ctx, icon, x, y, size) {
+        var paths = WEATHER_ICON_PATHS[icon] || WEATHER_ICON_PATHS.cloudy;
+        var scale = size / 24;
+
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.scale(scale, scale);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = 1.6; // in 24-unit icon space; scales up with the icon
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        paths.forEach(function (d) {
+            ctx.stroke(new Path2D(d));
+        });
+        ctx.restore();
+    }
+
+    // Renders the compact weather card: an icon plus three short lines
+    // (temp, high/low, next sunrise/sunset) rather than a wrapped prose
+    // sentence — deliberately terse since this box is only 1/5 of the
+    // footer's width. targetHeight, when given, is the transit box's own
+    // rendered height (render.js draws that one first) so the two footer
+    // boxes come out exactly the same height instead of two independent
+    // computations drifting apart by a few px.
+    function renderWeatherCard(canvasEl, weather, contentWidth, targetHeight) {
         var ctx = canvasEl.getContext("2d");
-        var font = "600 34px " + FONT_FAMILY;
+        if (!weather) {
+            canvasEl.width = 0;
+            canvasEl.height = 0;
+            return;
+        }
+
+        var tempFont = "700 30px " + FONT_FAMILY;
+        var detailFont = "600 21px " + FONT_FAMILY;
+        var lineHeight1 = 34;
+        var lineHeight2 = 26;
+        var textHeight = lineHeight1 + lineHeight2 * 2;
+        var iconGap = 14;
+
+        // Match the transit box's actual content height exactly when given
+        // one, even if that's slightly less than this card's natural text
+        // stack height (textHeight) — equal box heights matter more than a
+        // few px of extra breathing room around the text.
+        var contentHeight = targetHeight ? (targetHeight - PADDING * 2 - BORDER * 2) : textHeight;
+        var iconSize = contentHeight;
+
+        var width = Math.ceil(contentWidth) + PADDING * 2 + BORDER * 2;
+        var height = Math.ceil(contentHeight) + PADDING * 2 + BORDER * 2;
+        canvasEl.width = width;
+        canvasEl.height = height;
+
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.strokeStyle = "#000";
+        ctx.lineWidth = BORDER;
+        ctx.strokeRect(BORDER / 2, BORDER / 2, width - BORDER, height - BORDER);
+
+        var originX = BORDER + PADDING;
+        var originY = BORDER + PADDING;
+
+        drawWeatherIcon(ctx, weather.icon, originX, originY, iconSize);
+
+        var textX = originX + iconSize + iconGap;
+        var textY = originY + Math.max(0, (contentHeight - textHeight) / 2);
+        ctx.fillStyle = "#000";
+        ctx.textBaseline = "top";
+        ctx.font = tempFont;
+        ctx.fillText(weather.temp + "°F", textX, textY);
+        ctx.font = detailFont;
+        ctx.fillText("H" + weather.high + "° L" + weather.low + "°", textX, textY + lineHeight1);
+        ctx.fillText(weather.sunGlyph + weather.sunTime, textX, textY + lineHeight1 + lineHeight2);
+
+        var imageData = ctx.getImageData(0, 0, width, height);
+        threshold(imageData);
+        ctx.putImageData(imageData, 0, 0);
+    }
+
+    // Renders a caption box, spanning a fixed content width (unlike the
+    // header, which hugs its text) and clamped to maxLines. fontSize/
+    // lineHeight default to the original single-box footer's sizing;
+    // callers with a narrower box (e.g. the split weather/transit footer)
+    // can pass smaller values so more text fits before truncating.
+    function renderFooter(canvasEl, body, contentWidth, maxLines, fontSize, lineHeight) {
+        var ctx = canvasEl.getContext("2d");
+        var font = "600 " + (fontSize || 34) + "px " + FONT_FAMILY;
         ctx.font = font;
         var lines = clampLines(ctx, wrapText(ctx, body, contentWidth), contentWidth, maxLines);
 
         drawBox(canvasEl, [
-            { font: font, lineHeight: 48, marginTop: 0, lines: lines }
+            { font: font, lineHeight: lineHeight || 48, marginTop: 0, lines: lines }
         ], contentWidth);
     }
 
@@ -233,6 +362,7 @@
     window.FRAME_TEXT_CANVAS = {
         renderHeader: renderHeader,
         renderFooter: renderFooter,
+        renderWeatherCard: renderWeatherCard,
         renderTimestamp: renderTimestamp
     };
 })();
