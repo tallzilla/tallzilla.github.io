@@ -40,12 +40,20 @@
 // what fraction of windows contain 4 or more distinct output colors --
 // a coherent dithered region only ever needs 2 colors to fake one
 // in-between tone; genuine chaos cycles through most of the 6-color
-// palette in a tiny area. Pieces confirmed bad this way scored ~0.97-1.0
-// on that fraction; confirmed-clean pieces (bold woodblock prints, in
-// particular) scored ~0.6-0.85. Reject above ~0.9; there's no committed
-// script for this yet since it needs a browser (Canvas/epdoptimize aren't
-// available in plain Node) -- done via a throwaway HTML harness that
-// imports dither.js and runs it against each candidate.
+// palette in a tiny area. The most-obviously-bad pieces scored ~0.97-1.0 on
+// that fraction, which is where the reject line was first drawn -- too
+// lenient. A piece that scored 0.91 (comfortably "passing" at that
+// threshold) turned out visibly bad too once actually looked at on the
+// rendered page, and re-checking the rest of the collection found a whole
+// cluster sitting at 0.86-0.95 that was likely just as bad. The one clean
+// break in the data across everything tested is between a confirmed-good
+// piece at 0.78 and the next-lowest score at 0.86 -- reject at or above
+// ~0.82, comfortably inside that gap. Don't trust a "looks separated
+// enough" cutoff without actually eyeballing a render at the top of
+// whatever you let through; there's no committed script for this check
+// yet since it needs a browser (Canvas/epdoptimize aren't available in
+// plain Node) -- done via a throwaway HTML harness that imports dither.js
+// and runs it against each candidate.
 //
 // render.js picks one at random on every page load when data.js's "image"
 // is left null, and uses title/artist/date to build the header text.
@@ -66,7 +74,7 @@
 // compute the luminance (0.299r+0.587g+0.114b) per pixel, and only keep it
 // if the standard deviation across all pixels is at least ~42. Then run it
 // through the real dither pipeline (see the fourth-check note above) and
-// reject anything scoring above ~0.9 on the high-diversity-window
+// reject anything scoring at or above ~0.82 on the high-diversity-window
 // fraction. Only then download the full size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
 // into frame/images/art/{image_id}.jpg and add an entry below.
@@ -91,58 +99,16 @@ window.FRAME_ARTWORKS = [
         date: "c. 1830/33"
     },
     {
-        image: "images/art/a748474d-ba2f-d3e5-da04-05e525a3f37a.jpg",
-        title: "Ship Building, Gloucester Harbor",
-        artist: "Winslow Homer",
-        date: "published October 11, 1873"
-    },
-    {
-        image: "images/art/72a76270-d6f4-e744-d47b-307873a8e8ff.jpg",
-        title: "A City Park",
-        artist: "William Merritt Chase",
-        date: "c. 1887"
-    },
-    {
-        image: "images/art/5fa07bf4-a95a-15b2-26df-9e888d4ac8d5.jpg",
-        title: "Cottage at the Top of a Hill",
-        artist: "Jacob van Ruisdael",
-        date: "c. 1660"
-    },
-    {
         image: "images/art/38726da7-8122-dc49-9243-766a1eeba9ed.jpg",
         title: "A Mild Breeze on a Fine Day (Gaifu kaisei), from the series \"Thirty-six Views of Mount Fuji (Fugaku sanjurokkei)\"",
         artist: "Katsushika Hokusai 葛飾 北斎",
         date: "c. 1830/33"
     },
     {
-        image: "images/art/a8e72155-62cd-c0e0-d7f3-57b2532654d4.jpg",
-        title: "Malta, Harbor of Valletta",
-        artist: "Abraham Storck",
-        date: "1695"
-    },
-    {
         image: "images/art/10c31086-2515-1348-2c37-ed41aaa7dc88.jpg",
         title: "Landscape",
         artist: "Théodore Rousseau",
         date: "c. 1835"
-    },
-    {
-        image: "images/art/1d3a275d-45dd-6026-b6ed-d7d8df417a3d.jpg",
-        title: "A Peasant Woman Digging in Front of Her Cottage",
-        artist: "Vincent van Gogh",
-        date: "c. 1885"
-    },
-    {
-        image: "images/art/e1bc0d4a-8953-3446-351c-accf5c671434.jpg",
-        title: "Broad Street, Stirling",
-        artist: "David Young Cameron",
-        date: "1899"
-    },
-    {
-        image: "images/art/e1826a0c-e20a-0e5e-a9e3-abf4fe123884.jpg",
-        title: "Head of a Roebuck and Two Ptarmigan",
-        artist: "Edwin Henry Landseer",
-        date: "c. 1830"
     },
     {
         image: "images/art/30fb830f-664d-08b8-7e87-2d5cfebb61dd.jpg",
@@ -161,18 +127,6 @@ window.FRAME_ARTWORKS = [
         title: "Big River, from the Rancherie, Mendocino, California",
         artist: "Carleton E. Watkins",
         date: "1863"
-    },
-    {
-        image: "images/art/ad3280c6-611a-c136-29b8-8f303a02f416.jpg",
-        title: "Landscape with Figures",
-        artist: "Narcisse Virgile Diaz de la Peña",
-        date: "c. 1870"
-    },
-    {
-        image: "images/art/f33cab45-4591-d51f-76f3-9aa8076e033e.jpg",
-        title: "Ruins of the Palace of the Caesars in Rome, plate eight from Die Römische Ansichten",
-        artist: "Joseph Anton Koch",
-        date: "1810"
     },
     {
         image: "images/art/a2e9aad2-dd14-ae12-6c44-6811229b3619.jpg",
@@ -205,24 +159,6 @@ window.FRAME_ARTWORKS = [
         date: "1906–09"
     },
     {
-        image: "images/art/eb55340f-ed2a-c068-e1fb-b51b60d9bbda.jpg",
-        title: "Hillside with Trees",
-        artist: "William Morris Hunt",
-        date: "1872–78"
-    },
-    {
-        image: "images/art/7a63b68a-a84f-87b0-80a4-2848404f1ad6.jpg",
-        title: "Moonlight Scene",
-        artist: "Unknown artist",
-        date: "19th century"
-    },
-    {
-        image: "images/art/43f47517-f126-94f2-1608-df20f2a149f3.jpg",
-        title: "Scene near Bathford",
-        artist: "E. Parker",
-        date: "n.d."
-    },
-    {
         image: "images/art/b3974542-b9b4-7568-fc4b-966738f61d78.jpg",
         title: "Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as The Great Wave, from the series \"Thirty-Six Views of Mount Fuji (Fugaku sanjūrokkei)\"",
         artist: "Katsushika Hokusai 葛飾 北斎",
@@ -251,5 +187,77 @@ window.FRAME_ARTWORKS = [
         title: "Ravine Near Biskra",
         artist: "Victor Pierre Huguet",
         date: "c. 1895"
+    },
+    {
+        image: "images/art/11f33728-685f-c85c-2326-cd0e42536044.jpg",
+        title: "Abraham's Sacrifice of Isaac",
+        artist: "David Teniers the Younger",
+        date: "1654–56"
+    },
+    {
+        image: "images/art/c8a269d9-d12b-2b70-4f8a-a5286ce94c59.jpg",
+        title: "The Beach at Sainte-Adresse, with the Dumont Baths",
+        artist: "Gustave Le Gray",
+        date: "1856/57"
+    },
+    {
+        image: "images/art/357de077-487f-6588-624d-1104fedda811.jpg",
+        title: "Autumn Moon at Ishiyama (Ishiyama shugetsu), from the series \"Eight Views of Omi (Omi hakkei no uchi)\"",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1834"
+    },
+    {
+        image: "images/art/795a45a6-54b2-1aee-54d4-2693a1416e45.jpg",
+        title: "Autumn Color, from the series \"Worlds of Things (Momoyogusa)\"",
+        artist: "Kamisaka Sekka 神坂 雪佳",
+        date: "1909/10"
+    },
+    {
+        image: "images/art/f4b5847d-d61d-2216-5fe1-d258c64fc3cf.jpg",
+        title: "Morning Glories, Pinks, and Maiden Flower, from the series \"Seven Autumn Flowers in Moonlight\"",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "1830/44"
+    },
+    {
+        image: "images/art/0010bff3-4f51-8e35-46ee-0c46184354f6.jpg",
+        title: "For to Be a Farmer's Boy",
+        artist: "Winslow Homer",
+        date: "1887"
+    },
+    {
+        image: "images/art/e29ab761-2da7-f2ae-85a7-0f6be42e95a3.jpg",
+        title: "Pine Beach with Shrine Gate, from the series \"A World of Things (Momoyogusa)\"",
+        artist: "Kamisaka Sekka 神坂 雪佳",
+        date: "1909/10"
+    },
+    {
+        image: "images/art/696e53db-a122-3f1a-6139-ab561cfea452.jpg",
+        title: "Mount Fuji Rising beyond Miho Beach",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1838/42"
+    },
+    {
+        image: "images/art/1cada44e-2cd7-81e1-b754-bd0c55be291c.jpg",
+        title: "The Stone Bridge over the Aji River near Nii Hill, Osaka (Osaka Ajigawa Niiyama ishibashi), from the series \"Famous Places in Osaka: Fine Views of Mount Tenpo (Naniwa meisho Tenpozan shokei ichiran)\"",
+        artist: "Yashima Gakutei 八島 岳亭",
+        date: "c. 1834"
+    },
+    {
+        image: "images/art/a80c256d-e1dd-9841-36da-a8c41b16381b.jpg",
+        title: "Yoshida: The Toyo River Bridge (Yoshida, Toyokawabashi), from the series \"Fifty-three Stations of the Tokaido (Tokaido gojusan tsugi no uchi),\" also known as the Hoeido Tokaido",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1833/34"
+    },
+    {
+        image: "images/art/4d5a6178-a330-708a-c7eb-cfa20c3f66af.jpg",
+        title: "Cliffs and Sea, Sainte-Adresse",
+        artist: "Claude Monet",
+        date: "c. 1864"
+    },
+    {
+        image: "images/art/e0d8a305-15b0-bdcd-1e83-06d8594a2f7e.jpg",
+        title: "On the Road",
+        artist: "Jules Dupré",
+        date: "1856"
     },
 ];
