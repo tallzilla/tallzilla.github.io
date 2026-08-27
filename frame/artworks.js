@@ -23,6 +23,30 @@
 // the metric actually enforced now; the range is still worth glancing at
 // but isn't the gate.
 //
+// A fourth check, added later, catches a different failure mode contrast
+// doesn't: dense fine detail (engraving/etching crosshatch, a scan with a
+// subtle sepia cast) that survives the contrast check fine but comes out
+// as chaotic multi-color speckle after dithering, since the Spectra
+// palette has no gray primary and has to fake a midtone by rapidly
+// alternating colors. Source-image proxies for this were tried and
+// rejected -- luminance midtone fraction, distance-to-nearest-palette-color,
+// even distance-margin between nearest and second-nearest palette color --
+// none of them correlated with the real outcome (a bold two-tone Hokusai
+// print can score "far from palette" on paper yet dither cleanly, while a
+// muddy sepia piece scores "fine" on contrast alone yet speckles badly).
+// What actually works is running the real candidate through the real
+// dither pipeline (dither.js/epdoptimize, same as production) and
+// measuring the OUTPUT: tile it into small windows (e.g. 6x6px) and check
+// what fraction of windows contain 4 or more distinct output colors --
+// a coherent dithered region only ever needs 2 colors to fake one
+// in-between tone; genuine chaos cycles through most of the 6-color
+// palette in a tiny area. Pieces confirmed bad this way scored ~0.97-1.0
+// on that fraction; confirmed-clean pieces (bold woodblock prints, in
+// particular) scored ~0.6-0.85. Reject above ~0.9; there's no committed
+// script for this yet since it needs a browser (Canvas/epdoptimize aren't
+// available in plain Node) -- done via a throwaway HTML harness that
+// imports dither.js and runs it against each candidate.
+//
 // render.js picks one at random on every page load when data.js's "image"
 // is left null, and uses title/artist/date to build the header text.
 //
@@ -38,10 +62,12 @@
 // dimensions_detail (physical size in cm comes back directly, no extra
 // call needed) -- keep width/height within ~2x of 27x20cm and the
 // width/height ratio within about 1.2-1.48. Then download a preview size
-// and check contrast before committing to the full download: draw it to a
-// canvas, compute the luminance (0.299r+0.587g+0.114b) per pixel, and only
-// keep it if the standard deviation across all pixels is at least ~42.
-// Then download the full size --
+// and check contrast before committing further: draw it to a canvas,
+// compute the luminance (0.299r+0.587g+0.114b) per pixel, and only keep it
+// if the standard deviation across all pixels is at least ~42. Then run it
+// through the real dither pipeline (see the fourth-check note above) and
+// reject anything scoring above ~0.9 on the high-diversity-window
+// fraction. Only then download the full size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
 // into frame/images/art/{image_id}.jpg and add an entry below.
 
@@ -83,12 +109,6 @@ window.FRAME_ARTWORKS = [
         date: "c. 1660"
     },
     {
-        image: "images/art/15800d70-d1c8-a732-007f-a22a55cb407e.jpg",
-        title: "Harbor Scene with a Lighthouse",
-        artist: "Claude Lorrain",
-        date: "1638–41"
-    },
-    {
         image: "images/art/38726da7-8122-dc49-9243-766a1eeba9ed.jpg",
         title: "A Mild Breeze on a Fine Day (Gaifu kaisei), from the series \"Thirty-six Views of Mount Fuji (Fugaku sanjurokkei)\"",
         artist: "Katsushika Hokusai 葛飾 北斎",
@@ -99,12 +119,6 @@ window.FRAME_ARTWORKS = [
         title: "Malta, Harbor of Valletta",
         artist: "Abraham Storck",
         date: "1695"
-    },
-    {
-        image: "images/art/862608e5-8953-b1a3-53fd-ec009662516f.jpg",
-        title: "Still Life",
-        artist: "Hugo Charlemont",
-        date: "1883"
     },
     {
         image: "images/art/10c31086-2515-1348-2c37-ed41aaa7dc88.jpg",
@@ -129,12 +143,6 @@ window.FRAME_ARTWORKS = [
         title: "Head of a Roebuck and Two Ptarmigan",
         artist: "Edwin Henry Landseer",
         date: "c. 1830"
-    },
-    {
-        image: "images/art/f3f1109a-5ca6-7bba-0a79-ebfdba2e4b6b.jpg",
-        title: "Landscape with Three Gabled Cottages Beside a Road",
-        artist: "Rembrandt van Rijn",
-        date: "1650"
     },
     {
         image: "images/art/30fb830f-664d-08b8-7e87-2d5cfebb61dd.jpg",
@@ -209,21 +217,39 @@ window.FRAME_ARTWORKS = [
         date: "19th century"
     },
     {
-        image: "images/art/a2c51713-67cc-adff-555c-928a8261d5ca.jpg",
-        title: "The Little Thatched Cottages",
-        artist: "Félix Hilaire Buhot",
-        date: "1878"
-    },
-    {
-        image: "images/art/7f4d28d4-dd4c-66a0-c388-f8093c4ca38b.jpg",
-        title: "A Winter Morning Shovelling Out",
-        artist: "Winslow Homer",
-        date: "published January 14, 1871"
-    },
-    {
         image: "images/art/43f47517-f126-94f2-1608-df20f2a149f3.jpg",
         title: "Scene near Bathford",
         artist: "E. Parker",
         date: "n.d."
+    },
+    {
+        image: "images/art/b3974542-b9b4-7568-fc4b-966738f61d78.jpg",
+        title: "Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as The Great Wave, from the series \"Thirty-Six Views of Mount Fuji (Fugaku sanjūrokkei)\"",
+        artist: "Katsushika Hokusai 葛飾 北斎",
+        date: "1830/33"
+    },
+    {
+        image: "images/art/290adf41-49b4-2d81-2976-a0bc884de14c.jpg",
+        title: "Fishing Village, from the series \"A World of Things (Momoyogusa)\"",
+        artist: "Kamisaka Sekka 神坂 雪佳",
+        date: "1909/10"
+    },
+    {
+        image: "images/art/9a51d50a-ce5f-2cc8-add8-91d24feb90f1.jpg",
+        title: "A Mountainous Landscape with a Stream",
+        artist: "Totoya Hokkei 魚屋 北渓",
+        date: "1827"
+    },
+    {
+        image: "images/art/e88a2253-69a0-425e-32d1-e9640111ef39.jpg",
+        title: "Landscape with the Penitent Saint Jerome",
+        artist: "Belgian",
+        date: "1530–40"
+    },
+    {
+        image: "images/art/41458ec7-da2d-773d-159c-9ae9afb53516.jpg",
+        title: "Ravine Near Biskra",
+        artist: "Victor Pierre Huguet",
+        date: "c. 1895"
     },
 ];
