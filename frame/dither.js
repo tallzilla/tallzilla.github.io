@@ -87,11 +87,14 @@ async function renderDithered(sourceImg, canvasEl) {
         ditheringType: "errorDiffusion",
         errorDiffusionMatrix: "floydSteinberg",
         serpentine: true,
-        // Manual exposure/saturation/contrast boost, disabled for now.
-        // "contrast" mode is required for exposure/saturation/contrast to
-        // take effect at all (default mode "off" ignores them) — flip mode
-        // back to "contrast" to re-enable.
-        toneMapping: { mode: "off", exposure: 0.1, saturation: 0.1, contrast: 0.1 },
+        // Manual exposure/saturation/contrast boost. "contrast" mode is
+        // required for exposure/saturation/contrast to take effect at all
+        // (mode "off" ignores them, which is how this was set for a while).
+        // contrast here is (multiplier - 1), so 0.25 is a 25% contrast
+        // boost — within the 20-30% range a Spectra 6 vendor guide
+        // recommends for this panel, applied at render time to whatever
+        // image made it through artworks.js's selection filters.
+        toneMapping: { mode: "contrast", exposure: 0.1, saturation: 0.1, contrast: 0.25 },
         // Force pure-JS processing: avoids pulling in the library's WASM/
         // Worker-accelerated paths, which would mean vendoring and wiring
         // up additional asset files (a .wasm module, a Worker script) for
