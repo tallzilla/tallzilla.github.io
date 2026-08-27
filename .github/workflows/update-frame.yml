@@ -1,15 +1,15 @@
-name: Update /frame weather
+name: Update /frame
 
 on:
   schedule:
-    - cron: "0 */2 * * *"
+    - cron: "0 * * * *"
   workflow_dispatch: {}
 
 permissions:
   contents: write
 
 jobs:
-  update-weather:
+  update-frame:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,14 +20,18 @@ jobs:
 
       - run: node frame/generate-weather.js
 
+      - run: node frame/generate-transit.js
+        env:
+          TRANSIT_511_API_KEY: ${{ secrets.TRANSIT_511_API_KEY }}
+
       - name: Commit and push if changed
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- frame/weather.js; then
-            echo "No weather change"
+          if git diff --quiet -- frame/weather.js frame/transit.js; then
+            echo "No change"
           else
-            git add frame/weather.js
-            git commit -m "Update /frame weather"
+            git add frame/weather.js frame/transit.js
+            git commit -m "Update /frame weather and transit"
             git push
           fi
