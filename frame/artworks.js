@@ -157,4 +157,52 @@ window.FRAME_ARTWORKS = [
         artist: "Claude Monet",
         date: "c. 1864"
     },
+    {
+        image: "images/art/d11c0a27-95f3-92fd-049b-37003e3cdf5a.jpg",
+        title: "The Battle around the Shield and Lance",
+        artist: "Giovanni Jacopo Caraglio",
+        date: "c. 1527"
+    },
+    {
+        image: "images/art/34f09257-4c7f-3421-7396-e9dba321258a.jpg",
+        title: "Weeping Tree",
+        artist: "Vincent van Gogh",
+        date: "1889"
+    },
+    {
+        image: "images/art/66ebff3a-12b4-763f-8f56-167301b59360.jpg",
+        title: "Snow at Akabane Bridge in Shiba (Shiba Akabane no yuki), from the series \"Famous Places in the Eastern Capital (Toto meisho)\"",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1843/47"
+    },
+    {
+        image: "images/art/cef4e5df-a749-090b-b897-7d5f40654685.jpg",
+        title: "Hamamatsu, from the series \"Fifty-three Stations of the Tokaido (Tokaido gojusan tsugi),\" also known as the Tokaido with Poem (Kyoka iri Tokaido)",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1837/42"
+    },
+    {
+        image: "images/art/38636be8-f1bc-c451-ae65-c441919bd0c3.jpg",
+        title: "Bullfight",
+        artist: "Édouard Manet",
+        date: "1865–66"
+    },
+    {
+        image: "images/art/c287562e-816e-096c-022a-b05199ba4b8f.jpg",
+        title: "Kanbara: Evening Snow (Kanbara, yoru no yuki), from the series \"Fifty-three Stations of the Tokaido (Tokaido gojusan tsugi no uchi),\" also known as the Hoeido Tokaido",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1833/34"
+    },
+    {
+        image: "images/art/43642ffb-2bd7-3f70-d6e6-3c0bee12d83c.jpg",
+        title: "Village in Brittany",
+        artist: "Charles François Daubigny",
+        date: "1844"
+    },
+    {
+        image: "images/art/2920ee93-7e74-393e-c270-d58847eb9af7.jpg",
+        title: "Mitsuke: Ferries Crossing the Tenryu River (Mitsuke, Tenryugawa funawatashi), from the series \"Fifty-three Stations of the Tokaido (Tokaido gojusan tsugi),\" also known as the Tokaido with Poem (Kyoka iri Tokaido)",
+        artist: "Utagawa Hiroshige 歌川 広重",
+        date: "c. 1837/42"
+    },
 ];
