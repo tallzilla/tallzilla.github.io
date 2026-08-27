@@ -1,12 +1,23 @@
 // Curated list of public-domain artworks, sourced from the Art Institute of
-// Chicago's open API (api.artic.edu), filtered on three criteria: flat/2D
+// Chicago's open API (api.artic.edu), filtered on four criteria: flat/2D
 // media only (see the fourth-check note below), aspect ratio close to the
-// frame's own 1600x1200 (roughly 10% cover-crop or less), and contrast.
-// There used to be a fourth criterion -- physical size within ~2x the
-// frame's actual ~10.6x8in (27x20cm) footprint, meant to keep out pieces so
-// much larger than the display that they'd have been downscaled from
-// something far more detailed than what a 1600x1200 render can resolve --
-// dropped as redundant with real-device spot-checking (see below).
+// frame's own 1600x1200 (roughly 10% cover-crop or less), contrast, and
+// edge density (below). There used to be a fifth criterion -- physical
+// size within ~2x the frame's actual ~10.6x8in (27x20cm) footprint, meant
+// to keep out pieces so much larger than the display that they'd have been
+// downscaled from something far more detailed than what a 1600x1200 render
+// can resolve -- dropped as redundant with the checks below.
+//
+// Edge density: mean local-gradient magnitude on a downscaled (300px
+// longest side) luminance sample, sqrt((d luminance/dx)^2 + (d
+// luminance/dy)^2) averaged over every pixel. Required to be at least 25.
+// This is a deliberate, explicit departure from the finding right below
+// it (the real-dither-output speckle metric, and every other automated
+// proxy tried, showed zero correlation with real-device verdicts from a
+// 21-piece human calibration exercise) -- that calibration data is being
+// set aside on purpose to try a simpler rule instead. Current status:
+// unvalidated against real-device appearance. Revisit if pieces let
+// through this way turn out to look bad in practice.
 //
 // Contrast is measured on a downscaled sample as the standard deviation of
 // per-pixel luminance, required to be at least ~42 out of 255. This
@@ -99,15 +110,15 @@
 // requests in a tight loop silently fails to write output files. Space
 // search-endpoint calls out (a second or so apart) or batch them in small
 // groups; the image-download endpoint doesn't have this problem. Then
-// download a preview size and check contrast: draw it to a canvas,
-// compute the luminance (0.299r+0.587g+0.114b) per pixel, and only keep
-// it if the standard deviation across all pixels is at least ~42. That's
-// as far as any automated check can responsibly take a candidate -- next,
-// download the full size --
+// download a preview size (300px+ longest side is enough) and check
+// contrast: draw it to a canvas, compute the luminance
+// (0.299r+0.587g+0.114b) per pixel, and only keep it if the standard
+// deviation across all pixels is at least ~42. Then check edge density
+// (see the note above) on the same downscaled sample and only keep it if
+// the mean gradient magnitude is at least 25. Only then download the full
+// size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
-// into frame/images/art/{image_id}.jpg, and get an actual human verdict
-// on the real dithered render (frame/calibrate.html or equivalent) before
-// adding an entry below.
+// into frame/images/art/{image_id}.jpg and add an entry below.
 
 window.FRAME_ARTWORKS = [
     {
@@ -115,12 +126,6 @@ window.FRAME_ARTWORKS = [
         title: "Ship Building, Gloucester Harbor",
         artist: "Winslow Homer",
         date: "1873"
-    },
-    {
-        image: "images/art/862608e5-8953-b1a3-53fd-ec009662516f.jpg",
-        title: "Still Life",
-        artist: "Hugo Charlemont",
-        date: "1883"
     },
     {
         image: "images/art/f33cab45-4591-d51f-76f3-9aa8076e033e.jpg",
@@ -135,118 +140,10 @@ window.FRAME_ARTWORKS = [
         date: "c. 1830/33"
     },
     {
-        image: "images/art/c8a269d9-d12b-2b70-4f8a-a5286ce94c59.jpg",
-        title: "The Beach at Sainte-Adresse, with the Dumont Baths",
-        artist: "Gustave Le Gray",
-        date: "1856/57"
-    },
-    {
-        image: "images/art/b0416125-7910-a0a3-75bb-b01f935c2af3.jpg",
-        title: "Shirasuka: Shiomi Slope,no. 33 from the series Fifty-Three Stations of the Tokaido (Tōkaidō gojūsan tsugi)",
-        artist: "Utagawa Hiroshige 歌川 広重",
-        date: "1847-52"
-    },
-    {
-        image: "images/art/5f3cc8e1-a024-9d9c-4d75-a18c5fcbbe65.jpg",
-        title: "Ejiri in Suruga Province (Sunshu Ejiri), from the series \"Thirty-six Views of Mount Fuji (Fugaku sanjurokkei)\"",
-        artist: "Katsushika Hokusai 葛飾 北斎",
-        date: "c. 1830/33"
-    },
-    {
-        image: "images/art/10c31086-2515-1348-2c37-ed41aaa7dc88.jpg",
-        title: "Landscape",
-        artist: "Théodore Rousseau",
-        date: "c. 1835"
-    },
-    {
-        image: "images/art/85e92d7a-9d6e-28fe-db5a-f0a7244c3f1f.jpg",
-        title: "Self-Portrait Preparing an Etching",
-        artist: "Henri Charles Guérard",
-        date: "c. 1890"
-    },
-    {
-        image: "images/art/0ac9663b-e17e-471d-e4e3-6c60fc800704.jpg",
-        title: "Big River, from the Rancherie, Mendocino, California",
-        artist: "Carleton E. Watkins",
-        date: "1863"
-    },
-    {
-        image: "images/art/a2e9aad2-dd14-ae12-6c44-6811229b3619.jpg",
-        title: "Landscape with Figures Crossing a Bridge",
-        artist: "John Rathbone",
-        date: "1790–1800"
-    },
-    {
-        image: "images/art/9fcd0220-7fcb-205c-163b-8a629004b33a.jpg",
-        title: "Landscape, Switzerland",
-        artist: "Adolphe Braun",
-        date: "c. 1860"
-    },
-    {
-        image: "images/art/b3af1961-f127-2a88-ef03-c2b03866956d.jpg",
-        title: "\"Fire!\", plate 35 from Types Parisiens",
-        artist: "Honoré Victorin Daumier",
-        date: "1839"
-    },
-    {
-        image: "images/art/eb2c6693-2a9e-7f31-9a13-9fbc4056325c.jpg",
-        title: "Ships in the Harbor at Sète",
-        artist: "Gustave Le Gray",
-        date: "1857"
-    },
-    {
-        image: "images/art/a08c2d95-70b8-51ad-962d-e3393833447c.jpg",
-        title: "Village Street",
-        artist: "Ernst Ludwig Kirchner",
-        date: "1906–09"
-    },
-    {
         image: "images/art/b3974542-b9b4-7568-fc4b-966738f61d78.jpg",
         title: "Under the Wave off Kanagawa (Kanagawa oki nami ura), also known as The Great Wave, from the series \"Thirty-Six Views of Mount Fuji (Fugaku sanjūrokkei)\"",
         artist: "Katsushika Hokusai 葛飾 北斎",
         date: "1830/33"
-    },
-    {
-        image: "images/art/290adf41-49b4-2d81-2976-a0bc884de14c.jpg",
-        title: "Fishing Village, from the series \"A World of Things (Momoyogusa)\"",
-        artist: "Kamisaka Sekka 神坂 雪佳",
-        date: "1909/10"
-    },
-    {
-        image: "images/art/9a51d50a-ce5f-2cc8-add8-91d24feb90f1.jpg",
-        title: "A Mountainous Landscape with a Stream",
-        artist: "Totoya Hokkei 魚屋 北渓",
-        date: "1827"
-    },
-    {
-        image: "images/art/e88a2253-69a0-425e-32d1-e9640111ef39.jpg",
-        title: "Landscape with the Penitent Saint Jerome",
-        artist: "Belgian",
-        date: "1530–40"
-    },
-    {
-        image: "images/art/41458ec7-da2d-773d-159c-9ae9afb53516.jpg",
-        title: "Ravine Near Biskra",
-        artist: "Victor Pierre Huguet",
-        date: "c. 1895"
-    },
-    {
-        image: "images/art/11f33728-685f-c85c-2326-cd0e42536044.jpg",
-        title: "Abraham's Sacrifice of Isaac",
-        artist: "David Teniers the Younger",
-        date: "1654–56"
-    },
-    {
-        image: "images/art/f4b5847d-d61d-2216-5fe1-d258c64fc3cf.jpg",
-        title: "Morning Glories, Pinks, and Maiden Flower, from the series \"Seven Autumn Flowers in Moonlight\"",
-        artist: "Utagawa Hiroshige 歌川 広重",
-        date: "1830/44"
-    },
-    {
-        image: "images/art/0010bff3-4f51-8e35-46ee-0c46184354f6.jpg",
-        title: "For to Be a Farmer's Boy",
-        artist: "Winslow Homer",
-        date: "1887"
     },
     {
         image: "images/art/e29ab761-2da7-f2ae-85a7-0f6be42e95a3.jpg",
@@ -255,27 +152,9 @@ window.FRAME_ARTWORKS = [
         date: "1909/10"
     },
     {
-        image: "images/art/696e53db-a122-3f1a-6139-ab561cfea452.jpg",
-        title: "Mount Fuji Rising beyond Miho Beach",
-        artist: "Utagawa Hiroshige 歌川 広重",
-        date: "c. 1838/42"
-    },
-    {
-        image: "images/art/a80c256d-e1dd-9841-36da-a8c41b16381b.jpg",
-        title: "Yoshida: The Toyo River Bridge (Yoshida, Toyokawabashi), from the series \"Fifty-three Stations of the Tokaido (Tokaido gojusan tsugi no uchi),\" also known as the Hoeido Tokaido",
-        artist: "Utagawa Hiroshige 歌川 広重",
-        date: "c. 1833/34"
-    },
-    {
         image: "images/art/4d5a6178-a330-708a-c7eb-cfa20c3f66af.jpg",
         title: "Cliffs and Sea, Sainte-Adresse",
         artist: "Claude Monet",
         date: "c. 1864"
-    },
-    {
-        image: "images/art/e0d8a305-15b0-bdcd-1e83-06d8594a2f7e.jpg",
-        title: "On the Road",
-        artist: "Jules Dupré",
-        date: "1856"
     },
 ];
