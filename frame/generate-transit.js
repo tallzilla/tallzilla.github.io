@@ -8,7 +8,9 @@ const fs = require("fs");
 const path = require("path");
 
 const TIME_ZONE = "America/Los_Angeles";
-const WINDOW_MINUTES = 60; // matches the hourly refresh cadence
+const WINDOW_MINUTES = 90; // a bit past the hourly refresh cadence, so the
+                           // last departure or two doesn't fall out of view
+                           // right before the next bake
 const API_KEY = process.env.TRANSIT_511_API_KEY;
 
 // Route "72" at stop 55501 is actually three branded sub-lines (72, 72M,
@@ -19,17 +21,6 @@ const STOPS = [
     { stopCode: "51175", route: "12" },
     { stopCode: "55501", route: "72" }
 ];
-
-// "Gilman St & Curtis St" -> "Gilman & Curtis". No direction word (e.g.
-// "southbound") either -- the cross street already tells you which stop,
-// and every character here counts against the 4-line footer clamp in
-// text-canvas.js.
-var STREET_SUFFIX = /\s+(St|Ave|Av|Blvd|Rd|Dr|Way|Pl|Ct|Ln)\.?$/i;
-function shortStopName(fullName) {
-    return fullName.split(" & ").map(function (part) {
-        return part.replace(STREET_SUFFIX, "");
-    }).join(" & ");
-}
 
 // No AM/PM suffix -- every departure in the WINDOW_MINUTES lookahead falls
 // within the same part of the day, so it'd just be repeated noise.
@@ -70,8 +61,7 @@ function buildStopSegment(stopCode, route, visits, now) {
         const time = new Date(call.ExpectedArrivalTime || call.AimedArrivalTime);
         return {
             time: time,
-            label: formatTime12h(time) + (variant ? "(" + variant + ")" : ""),
-            stopName: call.StopPointName
+            label: formatTime12h(time) + (variant ? "(" + variant + ")" : "")
         };
     }).filter(function (entry) {
         return entry.time <= windowEnd;
@@ -80,13 +70,12 @@ function buildStopSegment(stopCode, route, visits, now) {
     });
 
     if (entries.length === 0) {
-        return route + ": no buses in the next hour";
+        return route + ": no buses in the next " + WINDOW_MINUTES + " min";
     }
 
-    const stopName = shortStopName(entries[0].stopName);
     const times = entries.map(function (e) { return e.label; }).join(", ");
 
-    return route + " (" + stopName + "): " + times;
+    return route + ": " + times;
 }
 
 async function main() {
