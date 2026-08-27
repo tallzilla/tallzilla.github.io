@@ -22,6 +22,16 @@ const STOPS = [
     { stopCode: "55501", route: "72" }
 ];
 
+// "Gilman St & Curtis St" -> "Gilman & Curtis". No direction word (e.g.
+// "southbound") either -- the cross street already tells you which stop,
+// and every character here counts against the transit box's width.
+var STREET_SUFFIX = /\s+(St|Ave|Av|Blvd|Rd|Dr|Way|Pl|Ct|Ln)\.?$/i;
+function shortStopName(fullName) {
+    return fullName.split(" & ").map(function (part) {
+        return part.replace(STREET_SUFFIX, "");
+    }).join(" & ");
+}
+
 // No AM/PM suffix -- every departure in the WINDOW_MINUTES lookahead falls
 // within the same part of the day, so it'd just be repeated noise.
 function formatTime12h(date) {
@@ -61,7 +71,8 @@ function buildStopSegment(stopCode, route, visits, now) {
         const time = new Date(call.ExpectedArrivalTime || call.AimedArrivalTime);
         return {
             time: time,
-            label: formatTime12h(time) + (variant ? "(" + variant + ")" : "")
+            label: formatTime12h(time) + (variant ? "(" + variant + ")" : ""),
+            stopName: call.StopPointName
         };
     }).filter(function (entry) {
         return entry.time <= windowEnd;
@@ -73,9 +84,10 @@ function buildStopSegment(stopCode, route, visits, now) {
         return route + ": no buses in the next " + WINDOW_MINUTES + " min";
     }
 
+    const stopName = shortStopName(entries[0].stopName);
     const times = entries.map(function (e) { return e.label; }).join(", ");
 
-    return route + ": " + times;
+    return route + " (" + stopName + "): " + times;
 }
 
 async function main() {
