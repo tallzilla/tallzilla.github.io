@@ -1,6 +1,6 @@
 // Populates the frame markup from window.FRAME_DATA (set in data.js) and
 // window.FRAME_WEATHER (set in weather.js, regenerated on a schedule by
-// .github/workflows/update-frame-weather.yml — see frame/generate-weather.js).
+// .github/workflows/update-frame.yml — see frame/generate-weather.js).
 // Both are loaded as plain <script>s before this file, so title/date/
 // caption text are all available synchronously — no fetch()/async race to
 // worry about before a screenshot/capture pipeline grabs the page. (An
