@@ -1,19 +1,23 @@
 // Curated list of public-domain artworks, sourced from the Art Institute of
-// Chicago's open API (api.artic.edu), filtered on three criteria: aspect
-// ratio close to the frame's own 1600x1200 (roughly 10% cover-crop or
-// less), physical size within about 2x the frame's actual ~10.6x8in
-// (27x20cm) footprint (so a piece isn't downscaled from something much
-// larger than the display), and contrast -- measured on a downscaled
-// sample as the standard deviation of per-pixel luminance, required to be
-// at least ~42 out of 255. That last one matters specifically for the
-// 6-color Spectra palette: a genuinely faint piece (a pale pencil sketch, a
-// soft pastel with huge low-contrast sky/sand areas) doesn't just look
-// muted after dithering, it disappears almost entirely, since there's
-// barely any tonal separation for the palette to work with. Rejecting
-// those at selection time is the fix, not trying to contrast-correct them
-// at render time -- tried that first (tone mapping + dynamic range
-// compression) and even a heavy-handed version only partially recovered a
-// piece that was a lost cause to begin with.
+// Chicago's open API (api.artic.edu), filtered on three criteria: flat/2D
+// media only (see the fourth-check note below), aspect ratio close to the
+// frame's own 1600x1200 (roughly 10% cover-crop or less), and contrast.
+// There used to be a fourth criterion -- physical size within ~2x the
+// frame's actual ~10.6x8in (27x20cm) footprint, meant to keep out pieces so
+// much larger than the display that they'd have been downscaled from
+// something far more detailed than what a 1600x1200 render can resolve --
+// dropped as redundant with real-device spot-checking (see below).
+//
+// Contrast is measured on a downscaled sample as the standard deviation of
+// per-pixel luminance, required to be at least ~42 out of 255. This
+// matters specifically for the 6-color Spectra palette: a genuinely faint
+// piece (a pale pencil sketch, a soft pastel with huge low-contrast
+// sky/sand areas) doesn't just look muted after dithering, it disappears
+// almost entirely, since there's barely any tonal separation for the
+// palette to work with. Rejecting those at selection time is the fix, not
+// trying to contrast-correct them at render time -- tried that first (tone
+// mapping + dynamic range compression) and even a heavy-handed version
+// only partially recovered a piece that was a lost cause to begin with.
 //
 // Note on the contrast check: a simple percentile range (p95-p5 luminance)
 // isn't reliable on its own -- it lets through pieces that are mostly
@@ -23,37 +27,57 @@
 // the metric actually enforced now; the range is still worth glancing at
 // but isn't the gate.
 //
-// A fourth check, added later, catches a different failure mode contrast
-// doesn't: dense fine detail (engraving/etching crosshatch, a scan with a
-// subtle sepia cast) that survives the contrast check fine but comes out
-// as chaotic multi-color speckle after dithering, since the Spectra
-// palette has no gray primary and has to fake a midtone by rapidly
-// alternating colors. Source-image proxies for this were tried and
-// rejected -- luminance midtone fraction, distance-to-nearest-palette-color,
-// even distance-margin between nearest and second-nearest palette color --
-// none of them correlated with the real outcome (a bold two-tone Hokusai
-// print can score "far from palette" on paper yet dither cleanly, while a
-// muddy sepia piece scores "fine" on contrast alone yet speckles badly).
-// What actually works is running the real candidate through the real
-// dither pipeline (dither.js/epdoptimize, same as production) and
-// measuring the OUTPUT: tile it into small windows (e.g. 6x6px) and check
-// what fraction of windows contain 4 or more distinct output colors --
-// a coherent dithered region only ever needs 2 colors to fake one
-// in-between tone; genuine chaos cycles through most of the 6-color
-// palette in a tiny area. The most-obviously-bad pieces scored ~0.97-1.0 on
-// that fraction, which is where the reject line was first drawn -- too
-// lenient. A piece that scored 0.91 (comfortably "passing" at that
-// threshold) turned out visibly bad too once actually looked at on the
-// rendered page, and re-checking the rest of the collection found a whole
-// cluster sitting at 0.86-0.95 that was likely just as bad. The one clean
-// break in the data across everything tested is between a confirmed-good
-// piece at 0.78 and the next-lowest score at 0.86 -- reject at or above
-// ~0.82, comfortably inside that gap. Don't trust a "looks separated
-// enough" cutoff without actually eyeballing a render at the top of
-// whatever you let through; there's no committed script for this check
-// yet since it needs a browser (Canvas/epdoptimize aren't available in
-// plain Node) -- done via a throwaway HTML harness that imports dither.js
-// and runs it against each candidate.
+// A LOT of effort went into a fourth automated check meant to catch dense
+// fine detail (engraving/etching crosshatch, a scan with a subtle sepia
+// cast) that survives the contrast check fine but comes out as chaotic
+// multi-color speckle after dithering. Several source-image proxies were
+// tried and rejected as uncorrelated with the real outcome (luminance
+// midtone fraction, distance-to-nearest-palette-color, distance-margin
+// between nearest/second-nearest palette color). The one that seemed most
+// promising: run the real candidate through the real dither pipeline
+// (dither.js/epdoptimize, same as production) and measure the OUTPUT --
+// tile it into small windows and check what fraction contain 4+ distinct
+// colors, on the theory that a coherent dithered region only needs 2
+// colors to fake one in-between tone while genuine chaos cycles through
+// most of the palette in a tiny area.
+//
+// That metric is NOT reliable and should not be used. It was tuned
+// against the wrong ground truth: zoomed-in screenshots of the dithered
+// output, inspected at well beyond 1:1 pixel scale on a monitor. Dithered
+// images ALWAYS look like chaotic speckle at that zoom level -- that's
+// what dithering fundamentally is, independent of whether the source
+// image actually dithers well. Judging candidates that way manufactures
+// false rejections. The real test is the physical device (or a fair
+// approximation: the real dithered output shown at roughly true size, on
+// a normal screen, at normal viewing distance -- see frame/calibrate.html,
+// a throwaway review tool built for exactly this, and its instructions).
+// When several pieces this metric had flagged as bad were actually
+// checked that way, the results were damning for the metric: confirmed
+// pass and confirmed fail scores completely overlapped (e.g. a
+// confirmed-good piece at 0.98, a confirmed-bad piece at 0.76). There is
+// currently no known automated proxy for "will this speckle badly" --
+// contrast and flat/2D-media (below) are the only two automated gates;
+// everything else needs an actual human look at an actual (or
+// realistically approximated) render. Don't spend more time trying to
+// re-derive a numeric threshold for this without new real-device evidence
+// backing it -- that's the mistake that produced this whole situation.
+//
+// A separate check rejects anything that isn't a flat/2D medium -- a
+// photograph of a physical object (a ceramic vessel, a woven textile, a
+// sculpture) rather than a painting/print/drawing/photograph-as-artwork.
+// Nothing about contrast catches this failure mode; a well-lit object
+// photo can dither perfectly cleanly and still be wrong for a display
+// meant to show 2D art. Caught via AIC's artwork_type_title field (keep
+// it if the string contains "painting", "print", "drawing", "watercolor",
+// "photograph", "pastel", "etching", "engraving", "lithograph",
+// "woodcut", "gouache", or "illustration"; reject otherwise -- e.g.
+// "Textile", "Vessel", "Sculpture"). A depth/diameter check on
+// dimensions_detail was tried as a backstop and abandoned: it produces
+// false positives on ordinary framed paintings (which legitimately have a
+// physical frame depth), so it isn't a reliable signal on its own. This
+// check hasn't itself been invalidated by the speckle-metric mess above,
+// but it also hasn't been stress-tested much -- treat it as reasonable,
+// not gospel.
 //
 // render.js picks one at random on every page load when data.js's "image"
 // is left null, and uses title/artist/date to build the header text.
@@ -67,24 +91,54 @@
 //
 // To add more: search https://api.artic.edu/api/v1/artworks/search with
 // query[term][is_public_domain]=true and fields including
-// dimensions_detail (physical size in cm comes back directly, no extra
-// call needed) -- keep width/height within ~2x of 27x20cm and the
-// width/height ratio within about 1.2-1.48. Then download a preview size
-// and check contrast before committing further: draw it to a canvas,
-// compute the luminance (0.299r+0.587g+0.114b) per pixel, and only keep it
-// if the standard deviation across all pixels is at least ~42. Then run it
-// through the real dither pipeline (see the fourth-check note above) and
-// reject anything scoring at or above ~0.82 on the high-diversity-window
-// fraction. Only then download the full size --
+// artwork_type_title (see the flat/2D-media note above) and
+// dimensions_detail (for the aspect-ratio check -- width/height ratio
+// within about 1.2-1.48; no size floor/ceiling). Note: the AIC search
+// endpoint (api.artic.edu) rate-limits much more aggressively than its
+// IIIF image endpoint (www.artic.edu/iiif/2/...) -- more than ~5 rapid
+// requests in a tight loop silently fails to write output files. Space
+// search-endpoint calls out (a second or so apart) or batch them in small
+// groups; the image-download endpoint doesn't have this problem. Then
+// download a preview size and check contrast: draw it to a canvas,
+// compute the luminance (0.299r+0.587g+0.114b) per pixel, and only keep
+// it if the standard deviation across all pixels is at least ~42. That's
+// as far as any automated check can responsibly take a candidate -- next,
+// download the full size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
-// into frame/images/art/{image_id}.jpg and add an entry below.
+// into frame/images/art/{image_id}.jpg, and get an actual human verdict
+// on the real dithered render (frame/calibrate.html or equivalent) before
+// adding an entry below.
 
 window.FRAME_ARTWORKS = [
     {
-        image: "images/art/5873d7d7-732d-6e45-2bc0-8402afd7c0f0.jpg",
-        title: "The Rapids, Hudson River, Adirondacks",
+        image: "images/art/a748474d-ba2f-d3e5-da04-05e525a3f37a.jpg",
+        title: "Ship Building, Gloucester Harbor",
         artist: "Winslow Homer",
-        date: "1894"
+        date: "1873"
+    },
+    {
+        image: "images/art/862608e5-8953-b1a3-53fd-ec009662516f.jpg",
+        title: "Still Life",
+        artist: "Hugo Charlemont",
+        date: "1883"
+    },
+    {
+        image: "images/art/f33cab45-4591-d51f-76f3-9aa8076e033e.jpg",
+        title: "Ruins of the Palace of the Caesars in Rome, plate eight from Die Römische Ansichten",
+        artist: "Joseph Anton Koch",
+        date: "1810"
+    },
+    {
+        image: "images/art/38726da7-8122-dc49-9243-766a1eeba9ed.jpg",
+        title: "A Mild Breeze on a Fine Day (Gaifu kaisei), from the series \"Thirty-six Views of Mount Fuji (Fugaku sanjurokkei)\"",
+        artist: "Katsushika Hokusai 葡飾 北斎",
+        date: "c. 1830/33"
+    },
+    {
+        image: "images/art/c8a269d9-d12b-2b70-4f8a-a5286ce94c59.jpg",
+        title: "The Beach at Sainte-Adresse, with the Dumont Baths",
+        artist: "Gustave Le Gray",
+        date: "1856/57"
     },
     {
         image: "images/art/b0416125-7910-a0a3-75bb-b01f935c2af3.jpg",
@@ -99,22 +153,10 @@ window.FRAME_ARTWORKS = [
         date: "c. 1830/33"
     },
     {
-        image: "images/art/38726da7-8122-dc49-9243-766a1eeba9ed.jpg",
-        title: "A Mild Breeze on a Fine Day (Gaifu kaisei), from the series \"Thirty-six Views of Mount Fuji (Fugaku sanjurokkei)\"",
-        artist: "Katsushika Hokusai 葛飾 北斎",
-        date: "c. 1830/33"
-    },
-    {
         image: "images/art/10c31086-2515-1348-2c37-ed41aaa7dc88.jpg",
         title: "Landscape",
         artist: "Théodore Rousseau",
         date: "c. 1835"
-    },
-    {
-        image: "images/art/30fb830f-664d-08b8-7e87-2d5cfebb61dd.jpg",
-        title: "Chair Seat",
-        artist: "Abigail Davenport Williams",
-        date: "c. 1717"
     },
     {
         image: "images/art/85e92d7a-9d6e-28fe-db5a-f0a7244c3f1f.jpg",
@@ -195,24 +237,6 @@ window.FRAME_ARTWORKS = [
         date: "1654–56"
     },
     {
-        image: "images/art/c8a269d9-d12b-2b70-4f8a-a5286ce94c59.jpg",
-        title: "The Beach at Sainte-Adresse, with the Dumont Baths",
-        artist: "Gustave Le Gray",
-        date: "1856/57"
-    },
-    {
-        image: "images/art/357de077-487f-6588-624d-1104fedda811.jpg",
-        title: "Autumn Moon at Ishiyama (Ishiyama shugetsu), from the series \"Eight Views of Omi (Omi hakkei no uchi)\"",
-        artist: "Utagawa Hiroshige 歌川 広重",
-        date: "c. 1834"
-    },
-    {
-        image: "images/art/795a45a6-54b2-1aee-54d4-2693a1416e45.jpg",
-        title: "Autumn Color, from the series \"Worlds of Things (Momoyogusa)\"",
-        artist: "Kamisaka Sekka 神坂 雪佳",
-        date: "1909/10"
-    },
-    {
         image: "images/art/f4b5847d-d61d-2216-5fe1-d258c64fc3cf.jpg",
         title: "Morning Glories, Pinks, and Maiden Flower, from the series \"Seven Autumn Flowers in Moonlight\"",
         artist: "Utagawa Hiroshige 歌川 広重",
@@ -235,12 +259,6 @@ window.FRAME_ARTWORKS = [
         title: "Mount Fuji Rising beyond Miho Beach",
         artist: "Utagawa Hiroshige 歌川 広重",
         date: "c. 1838/42"
-    },
-    {
-        image: "images/art/1cada44e-2cd7-81e1-b754-bd0c55be291c.jpg",
-        title: "The Stone Bridge over the Aji River near Nii Hill, Osaka (Osaka Ajigawa Niiyama ishibashi), from the series \"Famous Places in Osaka: Fine Views of Mount Tenpo (Naniwa meisho Tenpozan shokei ichiran)\"",
-        artist: "Yashima Gakutei 八島 岳亭",
-        date: "c. 1834"
     },
     {
         image: "images/art/a80c256d-e1dd-9841-36da-a8c41b16381b.jpg",
