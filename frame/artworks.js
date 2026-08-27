@@ -205,4 +205,100 @@ window.FRAME_ARTWORKS = [
         artist: "Utagawa Hiroshige 歌川 広重",
         date: "c. 1837/42"
     },
+    {
+        image: "images/art/e35161fb-cd78-b757-8000-15ba3ebb0fc3.jpg",
+        title: "The Annunciation",
+        artist: "George Hitchcock",
+        date: "1887"
+    },
+    {
+        image: "images/art/97eae368-8f14-4a2d-e69d-358a3e9c3a5b.jpg",
+        title: "Harbor Scene",
+        artist: "William Roxby Beverley",
+        date: "n.d."
+    },
+    {
+        image: "images/art/b34de958-1cbe-065f-4941-c34f64d2b366.jpg",
+        title: "After the Hurricane, Bahamas",
+        artist: "Winslow Homer",
+        date: "1899"
+    },
+    {
+        image: "images/art/5d467173-3de8-2a29-ee53-d3af6c8a7812.jpg",
+        title: "Farm Courtyard",
+        artist: "François Boucher",
+        date: "c. 1750"
+    },
+    {
+        image: "images/art/4534cb54-bbde-d48d-e58e-779a03efefe3.jpg",
+        title: "Pontefract Castle",
+        artist: "J. Marsden",
+        date: "1774"
+    },
+    {
+        image: "images/art/ec14e825-ed02-c8a5-c25d-c04cbbc6a471.jpg",
+        title: "Sketch for The Revolt of Cairo",
+        artist: "Anne-Louis Girodet de Roussy-Trioson",
+        date: "c. 1810"
+    },
+    {
+        image: "images/art/d9bde524-38b2-4262-3338-e4d06a50746d.jpg",
+        title: "Still Life with Dead Game, Fruits, and Vegetables in a Market",
+        artist: "Frans Snyders",
+        date: "1614"
+    },
+    {
+        image: "images/art/92272a75-e704-6a0b-fb04-88a21bdc4581.jpg",
+        title: "The Artist's Farm and Vineyard",
+        artist: "Ernst Damitz",
+        date: "n.d."
+    },
+    {
+        image: "images/art/0b0b5c15-0633-376b-278e-2660f09b582a.jpg",
+        title: "The Wedding at Cana",
+        artist: "Giuseppe Maria Crespi",
+        date: "c. 1686"
+    },
+    {
+        image: "images/art/b9cb6d89-3721-2198-6df5-fd508d9fd97d.jpg",
+        title: "A Romantic Landscape with a Ruined Castle",
+        artist: "Robert Adam",
+        date: "1778–87"
+    },
+    {
+        image: "images/art/86296102-d04c-8413-34e0-36d96668c0dd.jpg",
+        title: "Decorated Initial \"G\" in Pink with Curling Leaves from a Manuscript",
+        artist: "Unknown",
+        date: "14th century or modern, c. 1920"
+    },
+    {
+        image: "images/art/3d83b910-3db6-2a60-427c-46ef6db5789f.jpg",
+        title: "Fishing Boat",
+        artist: "Johan Barthold Jongkind",
+        date: "1878"
+    },
+    {
+        image: "images/art/d538e584-9299-ab59-5480-049ce13eda48.jpg",
+        title: "Two Figures along River near Bridges and Houses (recto); Two Figures on Bridge Looking at Man in Punt (verso)",
+        artist: "Unknown",
+        date: "n.d."
+    },
+    {
+        image: "images/art/3bae5e81-c63d-6118-2322-02fd447fbf5b.jpg",
+        title: "In the Woods",
+        artist: "Imitator of Narcisse Virgile Diaz de la Peña",
+        date: "c. 1860"
+    },
+    {
+        image: "images/art/3e3cdd00-a6e1-a332-9168-cac8711ee12a.jpg",
+        title: "Fox Hunt",
+        artist: "W. H. Temple",
+        date: "c. 1865"
+    },
+    {
+        image: "images/art/43fcfad0-8256-4923-9f9c-03ca90417907.jpg",
+        title: "Les Andelys, Côte d'Aval",
+        artist: "Paul Signac",
+        date: "1886"
+    },
 ];
