@@ -1,6 +1,8 @@
 name: Update /frame
 
 on:
+  # Re-pushed to resync schedule registration after reports of GitHub Actions
+  # silently dropping cron triggers for newly created scheduled workflows.
   schedule:
     - cron: "7 * * * *"
   workflow_dispatch: {}
