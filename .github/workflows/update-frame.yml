@@ -1,10 +1,9 @@
 name: Update /frame
 
 on:
-  # Re-pushed to resync schedule registration after reports of GitHub Actions
-  # silently dropping cron triggers for newly created scheduled workflows.
-  schedule:
-    - cron: "7 * * * *"
+  # GitHub Actions' own schedule trigger proved unreliable for this repo
+  # (see frame/cron-worker/README.md) and was removed in favor of a
+  # Cloudflare Worker calling workflow_dispatch hourly.
   workflow_dispatch: {}
 
 permissions:

@@ -5,13 +5,17 @@ GitHub Actions workflow once an hour.
 
 ## Why this exists
 
-`update-frame.yml` has its own `schedule:` trigger (`cron: "7 * * * *"`), but
-GitHub Actions' native scheduler proved unreliable for this repo — most
-hourly windows produced no run at all (confirmed via
-`gh run list --workflow=update-frame.yml`, filtering on `event == "schedule"`).
-Moving the cron off the top of the hour didn't fix it, and neither did
-force-pushing a commit to resync the schedule registration (a workaround
-suggested in [github.com/orgs/community/discussions/185024](https://github.com/orgs/community/discussions/185024)).
+`update-frame.yml` used to have its own `schedule:` trigger
+(`cron: "7 * * * *"`), but GitHub Actions' native scheduler proved
+unreliable for this repo — most hourly windows produced no run at all
+(confirmed via `gh run list --workflow=update-frame.yml`, filtering on
+`event == "schedule"`). Moving the cron off the top of the hour didn't fix
+it, and neither did force-pushing a commit to resync the schedule
+registration (a workaround suggested in
+[github.com/orgs/community/discussions/185024](https://github.com/orgs/community/discussions/185024)).
+The `schedule:` trigger was removed from the workflow after this Worker was
+deployed, to avoid the two triggers occasionally racing to push the same
+commit.
 
 `workflow_dispatch` runs, by contrast, have a 100% success rate. This Worker
 exists purely to be a reliable external clock that calls the GitHub API's
