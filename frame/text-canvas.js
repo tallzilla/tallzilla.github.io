@@ -357,15 +357,12 @@
     // generate-transit.js's bake time -- the frame can be captured a while
     // after the data was baked) so a departure that's already passed by the
     // time this page is actually rendered doesn't show up as a prediction.
-    // Live departures draw bold, scheduled ones at normal weight, so it's
-    // visually clear which times reflect an actually-tracked bus.
     function renderTransitFooter(canvasEl, segments, contentWidth, now) {
         var ctx = canvasEl.getContext("2d");
         var fontSize = 34;
         var lineHeight = 48;
         var baseFont = "600 " + fontSize + "px " + FONT_FAMILY;
-        var liveFont = "700 " + fontSize + "px " + FONT_FAMILY;
-        var scheduledFont = "400 " + fontSize + "px " + FONT_FAMILY;
+        var entryFont = "700 " + fontSize + "px " + FONT_FAMILY;
 
         function measure(font, text) {
             ctx.font = font;
@@ -385,7 +382,6 @@
             var width = measure(baseFont, prefix);
             for (var i = 0; i < upcoming.length; i++) {
                 var entry = upcoming[i];
-                var entryFont = entry.live ? liveFont : scheduledFont;
                 var sep = i === 0 ? "" : ", ";
                 var addWidth = (sep ? measure(baseFont, sep) : 0) + measure(entryFont, entry.label);
                 if (i > 0 && width + addWidth > contentWidth) {
