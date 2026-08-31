@@ -265,8 +265,18 @@ async function main() {
         throw new Error("TRANSIT_511_API_KEY environment variable is not set");
     }
 
-    await debugFindStopsByName(/Gilman|Curtis/i);
-    await debugFindStopsByName(/San Pablo/i);
+    {
+        const json = await fetchTimetable("12");
+        const sf = json.Content && json.Content.ServiceFrame;
+        const routes = asArray(sf && sf.routes && sf.routes.Route);
+        console.error("DEBUG line 12 ServiceFrame route pattern count: " + routes.length);
+        routes.forEach(function (r) {
+            const pts = asArray(r.pointsInSequence && r.pointsInSequence.PointOnRoute).map(function (p) {
+                return p.PointRef && p.PointRef.ref;
+            });
+            console.error("DEBUG line 12 pattern " + r.id + " (" + r.Name + "): hasStop51175=" + pts.includes("51175") + " stops=" + JSON.stringify(pts));
+        });
+    }
 
     const now = new Date();
     const segments = [];
