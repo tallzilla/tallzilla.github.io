@@ -57,6 +57,36 @@ function formatTimeFull(isoLocalString) {
     return hour12 + ":" + minute + " " + suffix;
 }
 
+function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Open-Meteo occasionally returns a transient 503 (seen in practice on the
+// scheduled workflow) -- retry a couple times with a short backoff rather
+// than failing the whole run (which also skips generate-transit.js, since
+// both share one workflow job) over what's usually a one-off hiccup.
+async function fetchWithRetry(url, attempts, delayMs) {
+    for (let i = 1; i <= attempts; i += 1) {
+        let res;
+        try {
+            res = await fetch(url);
+        } catch (err) {
+            if (i === attempts) throw err;
+            console.error("open-meteo request errored (attempt " + i + "/" + attempts + "):", err.message);
+            await sleep(delayMs);
+            continue;
+        }
+        if (res.ok) {
+            return res;
+        }
+        if (i === attempts) {
+            throw new Error("open-meteo request failed: " + res.status);
+        }
+        console.error("open-meteo request failed with " + res.status + " (attempt " + i + "/" + attempts + "), retrying...");
+        await sleep(delayMs);
+    }
+}
+
 async function main() {
     const url = "https://api.open-meteo.com/v1/forecast" +
         "?latitude=" + LOCATION.latitude +
@@ -67,10 +97,7 @@ async function main() {
         "&timezone=" + encodeURIComponent(TIME_ZONE) +
         "&forecast_days=2";
 
-    const res = await fetch(url);
-    if (!res.ok) {
-        throw new Error("open-meteo request failed: " + res.status);
-    }
+    const res = await fetchWithRetry(url, 3, 2000);
     const json = await res.json();
     const daily = json.daily;
 
