@@ -103,6 +103,24 @@ function buildLiveEntries(visits, route, windowEnd) {
     });
 }
 
+// TEMPORARY debug probe (to be reverted): find the internal stop ids for
+// "Gilman & Curtis" and "San Pablo & Gilman" by name, since the ids used
+// inside timetable's ScheduledStopPointRef turned out not to be the same
+// as StopMonitoring's public stopcode after all.
+async function debugFindStopsByName(namePattern) {
+    const url = "https://api.511.org/transit/stops?api_key=" + encodeURIComponent(API_KEY) +
+        "&operator_id=AC&format=json";
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    const json = await res.json();
+    const stops = (json.Contents && json.Contents.dataObjects && json.Contents.dataObjects.ScheduledStopPoint) || [];
+    const matches = stops.filter(function (s) {
+        return s.Name && namePattern.test(s.Name);
+    }).map(function (s) {
+        return { id: s.id, Name: s.Name, Location: s.Location };
+    });
+    console.error("DEBUG stops matching " + namePattern + ": " + JSON.stringify(matches));
+}
+
 async function fetchTimetable(lineId) {
     const url = "https://api.511.org/transit/timetable" +
         "?api_key=" + encodeURIComponent(API_KEY) +
@@ -246,6 +264,9 @@ async function main() {
     if (!API_KEY) {
         throw new Error("TRANSIT_511_API_KEY environment variable is not set");
     }
+
+    await debugFindStopsByName(/Gilman|Curtis/i);
+    await debugFindStopsByName(/San Pablo/i);
 
     const now = new Date();
     const segments = [];
