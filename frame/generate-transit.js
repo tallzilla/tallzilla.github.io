@@ -103,24 +103,6 @@ function buildLiveEntries(visits, route, windowEnd) {
     });
 }
 
-// TEMPORARY debug probe (to be reverted): find the internal stop ids for
-// "Gilman & Curtis" and "San Pablo & Gilman" by name, since the ids used
-// inside timetable's ScheduledStopPointRef turned out not to be the same
-// as StopMonitoring's public stopcode after all.
-async function debugFindStopsByName(namePattern) {
-    const url = "https://api.511.org/transit/stops?api_key=" + encodeURIComponent(API_KEY) +
-        "&operator_id=AC&format=json";
-    const res = await fetch(url, { headers: { "Accept": "application/json" } });
-    const json = await res.json();
-    const stops = (json.Contents && json.Contents.dataObjects && json.Contents.dataObjects.ScheduledStopPoint) || [];
-    const matches = stops.filter(function (s) {
-        return s.Name && namePattern.test(s.Name);
-    }).map(function (s) {
-        return { id: s.id, Name: s.Name, Location: s.Location };
-    });
-    console.error("DEBUG stops matching " + namePattern + ": " + JSON.stringify(matches));
-}
-
 async function fetchTimetable(lineId) {
     const url = "https://api.511.org/transit/timetable" +
         "?api_key=" + encodeURIComponent(API_KEY) +
@@ -178,10 +160,7 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
     const todayDateStr = now.toLocaleDateString("en-CA", { timeZone: TIME_ZONE }); // "YYYY-MM-DD"
 
     const entries = [];
-    let framesTotal = 0, framesMatchedDay = 0, journeysTotal = 0, callsMatchedStop = 0;
-    const seenStopRefs = new Set();
     asArray(content.TimetableFrame).forEach(function (frame) {
-        framesTotal++;
         const cond = frame.frameValidityConditions && frame.frameValidityConditions.AvailabilityCondition;
         if (!cond) return;
 
@@ -189,20 +168,12 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
         if (!dayTypeRefs.some(function (ref) { return activeDayTypes.indexOf(ref) !== -1; })) return;
         if (cond.FromDate && new Date(cond.FromDate) > now) return;
         if (cond.ToDate && new Date(cond.ToDate) < now) return;
-        framesMatchedDay++;
 
         asArray(frame.vehicleJourneys && frame.vehicleJourneys.ServiceJourney).forEach(function (journey) {
-            journeysTotal++;
-            asArray(journey.calls && journey.calls.Call).forEach(function (c) {
-                if (c.ScheduledStopPointRef && c.ScheduledStopPointRef.ref) {
-                    seenStopRefs.add(c.ScheduledStopPointRef.ref);
-                }
-            });
             const call = asArray(journey.calls && journey.calls.Call).find(function (c) {
                 return c.ScheduledStopPointRef && c.ScheduledStopPointRef.ref === stopCode;
             });
             if (!call || !call.Departure || !call.Departure.Time) return;
-            callsMatchedStop++;
 
             const time = zonedTimeToUtc(todayDateStr, call.Departure.Time, TIME_ZONE);
             if (time > now && time <= windowEnd) {
@@ -210,13 +181,6 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
             }
         });
     });
-    console.error("DEBUG scheduled stopCode=" + stopCode + " variant=" + variant +
-        " activeDayTypes=" + JSON.stringify(activeDayTypes) +
-        " framesTotal=" + framesTotal + " framesMatchedDay=" + framesMatchedDay +
-        " journeysTotal=" + journeysTotal + " callsMatchedStop=" + callsMatchedStop +
-        " entries=" + entries.length +
-        " stopCodeInSeenRefs=" + seenStopRefs.has(stopCode) +
-        " seenStopRefsSample=" + JSON.stringify(Array.from(seenStopRefs).slice(0, 15)));
     return entries;
 }
 
@@ -263,19 +227,6 @@ async function buildStopSegment(stop, visits, now) {
 async function main() {
     if (!API_KEY) {
         throw new Error("TRANSIT_511_API_KEY environment variable is not set");
-    }
-
-    {
-        const json = await fetchTimetable("12");
-        const sf = json.Content && json.Content.ServiceFrame;
-        const routes = asArray(sf && sf.routes && sf.routes.Route);
-        console.error("DEBUG line 12 ServiceFrame route pattern count: " + routes.length);
-        routes.forEach(function (r) {
-            const pts = asArray(r.pointsInSequence && r.pointsInSequence.PointOnRoute).map(function (p) {
-                return p.PointRef && p.PointRef.ref;
-            });
-            console.error("DEBUG line 12 pattern " + r.id + " (" + r.Name + "): hasStop51175=" + pts.includes("51175") + " stops=" + JSON.stringify(pts));
-        });
     }
 
     const now = new Date();
