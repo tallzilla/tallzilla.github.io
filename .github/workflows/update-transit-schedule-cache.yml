@@ -37,10 +37,10 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- frame/transit-schedule-cache.json; then
+          git add frame/transit-schedule-cache.json
+          if git diff --cached --quiet; then
             echo "No change"
           else
-            git add frame/transit-schedule-cache.json
             git commit -m "Update AC Transit schedule cache"
             git push
           fi
