@@ -109,18 +109,21 @@
 // query[term][is_public_domain]=true and fields including
 // artwork_type_title (see the flat/2D-media note above) and
 // dimensions_detail (for the aspect-ratio check -- width/height ratio
-// within about 1.2-1.48; no size floor/ceiling). Note: the AIC search
+// within about 1.15-1.55; no size floor/ceiling). Note: the AIC search
 // endpoint (api.artic.edu) rate-limits much more aggressively than its
 // IIIF image endpoint (www.artic.edu/iiif/2/...) -- more than ~5 rapid
 // requests in a tight loop silently fails to write output files. Space
 // search-endpoint calls out (a second or so apart) or batch them in small
 // groups; the image-download endpoint doesn't have this problem. Then
-// download a preview size (300px+ longest side is enough) and run
-// `python frame/score-artwork.py <file>` -- it must report PASS (contrast
-// std >= 42 and edge density >= 25) before the piece is worth keeping.
-// Only then download the full size --
-// https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
-// into frame/images/art/{image_id}.jpg and add an entry below.
+// download the image at
+// https://www.artic.edu/iiif/2/{image_id}/full/!2400,1800/0/default.jpg
+// (the !2400,1800 size fits inside that box, so the result covers the
+// frame's 1600x1200 on both axes even at the extremes of the aspect band;
+// !1600,1200 lands short on one axis and gets upscaled at render time)
+// and run `python frame/score-artwork.py <file>` -- it must report PASS
+// (contrast std >= 42, edge density >= 25, and >= 1600x1200 delivered)
+// before the piece is worth keeping. Save it to
+// frame/images/art/{image_id}.jpg and add an entry below.
 
 window.FRAME_ARTWORKS = [
     {
@@ -202,12 +205,6 @@ window.FRAME_ARTWORKS = [
         date: "1844"
     },
     {
-        image: "images/art/2920ee93-7e74-393e-c270-d58847eb9af7.jpg",
-        title: "Mitsuke: Ferries Crossing the Tenryu River (Mitsuke, Tenryugawa funawatashi), from the series \"Fifty-three Stations of the Tokaido (Tokaido gojusan tsugi),\" also known as the Tokaido with Poem (Kyoka iri Tokaido)",
-        artist: "Utagawa Hiroshige 歌川 広重",
-        date: "c. 1837/42"
-    },
-    {
         image: "images/art/e35161fb-cd78-b757-8000-15ba3ebb0fc3.jpg",
         title: "The Annunciation",
         artist: "George Hitchcock",
@@ -250,12 +247,6 @@ window.FRAME_ARTWORKS = [
         date: "1614"
     },
     {
-        image: "images/art/92272a75-e704-6a0b-fb04-88a21bdc4581.jpg",
-        title: "The Artist's Farm and Vineyard",
-        artist: "Ernst Damitz",
-        date: "n.d."
-    },
-    {
         image: "images/art/0b0b5c15-0633-376b-278e-2660f09b582a.jpg",
         title: "The Wedding at Cana",
         artist: "Giuseppe Maria Crespi",
@@ -274,12 +265,6 @@ window.FRAME_ARTWORKS = [
         date: "14th century or modern, c. 1920"
     },
     {
-        image: "images/art/3d83b910-3db6-2a60-427c-46ef6db5789f.jpg",
-        title: "Fishing Boat",
-        artist: "Johan Barthold Jongkind",
-        date: "1878"
-    },
-    {
         image: "images/art/d538e584-9299-ab59-5480-049ce13eda48.jpg",
         title: "Two Figures along River near Bridges and Houses (recto); Two Figures on Bridge Looking at Man in Punt (verso)",
         artist: "Unknown",
@@ -292,15 +277,33 @@ window.FRAME_ARTWORKS = [
         date: "c. 1860"
     },
     {
-        image: "images/art/3e3cdd00-a6e1-a332-9168-cac8711ee12a.jpg",
-        title: "Fox Hunt",
-        artist: "W. H. Temple",
-        date: "c. 1865"
+        image: "images/art/a2b271f3-350a-1626-2e42-567f6c2605f9.jpg",
+        title: "The Shipwreck",
+        artist: "Claude Lorrain",
+        date: "1638/41"
     },
     {
-        image: "images/art/43fcfad0-8256-4923-9f9c-03ca90417907.jpg",
-        title: "Les Andelys, Côte d'Aval",
-        artist: "Paul Signac",
-        date: "1886"
+        image: "images/art/f7471c74-d431-ed5d-9543-1d6e4a44d5dc.jpg",
+        title: "Untitled (Ruins of Roman Forum)",
+        artist: "Robert MacPherson",
+        date: "c. 1867"
+    },
+    {
+        image: "images/art/60a6eba1-7d17-796d-df04-7d1f8b0f1f94.jpg",
+        title: "Arcadian Landscape with Figures",
+        artist: "Alessandro Magnasco",
+        date: "c. 1700"
+    },
+    {
+        image: "images/art/0cadd59f-0b74-c5a9-3b53-10d6144c4841.jpg",
+        title: "The Battle of St. James the Greater at Clavijo",
+        artist: "School of Martin Schongauer",
+        date: "n.d."
+    },
+    {
+        image: "images/art/dc9289d8-ce4f-09ce-c91b-56dc24154ece.jpg",
+        title: "The Market at Dolo, from Vedute",
+        artist: "Canaletto",
+        date: "1735/44"
     },
 ];

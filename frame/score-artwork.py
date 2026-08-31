@@ -17,9 +17,9 @@
 #   python frame/score-artwork.py --json path/to/candidate.jpg
 #       Emit machine-readable JSON instead of a table.
 #
-# These two gates run on the pixels and are the whole of what this script
-# decides. The other criteria in artworks.js are NOT pixel checks and are
-# not enforced here:
+# Three gates run on the pixels and are the whole of what this script
+# decides: contrast, edge density, and source resolution. The other
+# criteria in artworks.js are NOT pixel checks and are not enforced here:
 #   - flat/2D medium: from the Art Institute's artwork_type_title field.
 #     Keep the piece only if that string contains one of: painting, print,
 #     drawing, watercolor, photograph, pastel, etching, engraving,
@@ -54,6 +54,15 @@ MIN_CONTRAST_STD = 42.0
 # UNVALIDATED against real-device appearance -- revisit if pieces let
 # through this way turn out to look bad in practice.
 MIN_EDGE_DENSITY = 25.0
+
+# The frame renders at 1600x1200 with a cover-fit (dither.js scales by
+# max(1600/w, 1200/h), no upper clamp), so a source smaller than this on
+# either axis gets upscaled -- blurry detail feeding the ditherer. Fetch
+# the IIIF image at full/!2400,1800/ (not !1600,1200/, which fits *inside*
+# the box and lands short on one axis) and require the delivered pixels to
+# cover the frame.
+MIN_WIDTH = 1600
+MIN_HEIGHT = 1200
 
 # Longest side of the downscaled luminance sample, in pixels. Passed to
 # Image.thumbnail() as a square box, so a landscape image lands at
@@ -109,18 +118,19 @@ def edge_density(w, h, rows):
 
 def score_image(path):
     with Image.open(path) as img:
-        pixel_aspect = img.width / img.height
-        src = f"{img.width}x{img.height}"
+        src_w, src_h = img.width, img.height
+        pixel_aspect = src_w / src_h
         w, h, rows = _luminance_grid(img)
     contrast = contrast_std(rows)
     edge = edge_density(w, h, rows)
     checks = {
         "contrast": contrast >= MIN_CONTRAST_STD,
         "edge_density": edge >= MIN_EDGE_DENSITY,
+        "resolution": src_w >= MIN_WIDTH and src_h >= MIN_HEIGHT,
     }
     return {
         "path": str(path),
-        "source_px": src,
+        "source_px": f"{src_w}x{src_h}",
         "pixel_aspect_ratio": round(pixel_aspect, 3),
         "contrast_std": round(contrast, 2),
         "edge_density": round(edge, 2),
@@ -141,12 +151,12 @@ def _iter_audit_paths():
 def _print_row(r):
     flags = "".join(
         c if r["checks"][k] else c.lower()
-        for k, c in (("contrast", "C"), ("edge_density", "E"))
+        for k, c in (("contrast", "C"), ("edge_density", "E"), ("resolution", "R"))
     )
     verdict = "PASS" if r["pass"] else "FAIL"
     print(f'{verdict}  [{flags}]  contrast={r["contrast_std"]:6.2f}  '
           f'edge={r["edge_density"]:6.2f}  ar={r["pixel_aspect_ratio"]:.3f}  '
-          f'{Path(r["path"]).name}')
+          f'{r["source_px"]:>10}  {Path(r["path"]).name}')
 
 
 def main(argv):
@@ -175,13 +185,14 @@ def main(argv):
         print(json.dumps(results, indent=2))
         return 0
 
-    print(f"gates: contrast>={MIN_CONTRAST_STD:g}  edge>={MIN_EDGE_DENSITY:g}   "
+    print(f"gates: contrast>={MIN_CONTRAST_STD:g}  edge>={MIN_EDGE_DENSITY:g}  "
+          f"resolution>={MIN_WIDTH}x{MIN_HEIGHT}   "
           f"(lowercase flag = that check failed; ar shown for context, not gated)")
     for r in sorted(results, key=lambda r: -r["edge_density"]):
         _print_row(r)
 
     failed = [r for r in results if not r["pass"]]
-    print(f"\n{len(results) - len(failed)}/{len(results)} pass both gates")
+    print(f"\n{len(results) - len(failed)}/{len(results)} pass all gates")
     return 1 if (failed and "--audit" not in opts) else 0
 
 
