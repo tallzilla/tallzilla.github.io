@@ -30,7 +30,6 @@ jobs:
           curl -sSf "https://api.511.org/transit/datafeeds?api_key=$TRANSIT_511_API_KEY&operator_id=AC" -o /tmp/ac-gtfs.zip
           mkdir -p /tmp/ac-gtfs
           unzip -o -q /tmp/ac-gtfs.zip -d /tmp/ac-gtfs
-          ls -la /tmp/ac-gtfs
 
       - run: node frame/generate-transit-schedule-cache.js /tmp/ac-gtfs
 
