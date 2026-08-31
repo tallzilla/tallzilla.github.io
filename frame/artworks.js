@@ -2,7 +2,12 @@
 // Chicago's open API (api.artic.edu), filtered on four criteria: flat/2D
 // media only (see the fourth-check note below), aspect ratio close to the
 // frame's own 1600x1200 (roughly 10% cover-crop or less), contrast, and
-// edge density (below). There used to be a fifth criterion -- physical
+// edge density (below). The last two run on the pixels and are
+// implemented exactly in frame/score-artwork.py -- run that on a
+// candidate file (or with --audit over this whole list) rather than
+// re-deriving the formula; the downscale filter in particular is fiddly
+// enough that a near-miss reconstruction flips pass/fail verdicts. There
+// used to be a fifth criterion -- physical
 // size within ~2x the frame's actual ~10.6x8in (27x20cm) footprint, meant
 // to keep out pieces so much larger than the display that they'd have been
 // downscaled from something far more detailed than what a 1600x1200 render
@@ -110,13 +115,10 @@
 // requests in a tight loop silently fails to write output files. Space
 // search-endpoint calls out (a second or so apart) or batch them in small
 // groups; the image-download endpoint doesn't have this problem. Then
-// download a preview size (300px+ longest side is enough) and check
-// contrast: draw it to a canvas, compute the luminance
-// (0.299r+0.587g+0.114b) per pixel, and only keep it if the standard
-// deviation across all pixels is at least ~42. Then check edge density
-// (see the note above) on the same downscaled sample and only keep it if
-// the mean gradient magnitude is at least 25. Only then download the full
-// size --
+// download a preview size (300px+ longest side is enough) and run
+// `python frame/score-artwork.py <file>` -- it must report PASS (contrast
+// std >= 42 and edge density >= 25) before the piece is worth keeping.
+// Only then download the full size --
 // https://www.artic.edu/iiif/2/{image_id}/full/!1600,1200/0/default.jpg --
 // into frame/images/art/{image_id}.jpg and add an entry below.
 
