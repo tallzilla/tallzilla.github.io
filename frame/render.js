@@ -110,16 +110,20 @@
         footerTransitCanvasEl.setAttribute("aria-label", data.body);
     } else {
         var weather = window.FRAME_WEATHER || null;
-        var transitText = window.FRAME_TRANSIT || "";
+        var transitSegments = window.FRAME_TRANSIT || [];
 
-        // Transit renders first so its actual height (which varies with
-        // however many departures fall in the next-hour window) is known;
-        // the weather card is then sized to match exactly rather than the
-        // two boxes each computing their own height and drifting apart by
-        // a few px.
+        // Transit renders first so its actual height (now fixed at one line
+        // per route, but still computed rather than assumed) is known; the
+        // weather card is then sized to match exactly rather than the two
+        // boxes each computing their own height and drifting apart by a few
+        // px. `now` is the actual render moment -- see renderTransitFooter's
+        // comment on why departures are filtered against it, not against
+        // whenever generate-transit.js happened to bake the data.
         footerTransitCanvasEl.style.left = (32 + WEATHER_BOX_OUTER + FOOTER_GAP) + "px";
-        window.FRAME_TEXT_CANVAS.renderFooter(footerTransitCanvasEl, transitText, TRANSIT_CONTENT_WIDTH, 6);
-        footerTransitCanvasEl.setAttribute("aria-label", transitText);
+        window.FRAME_TEXT_CANVAS.renderTransitFooter(footerTransitCanvasEl, transitSegments, TRANSIT_CONTENT_WIDTH, new Date());
+        footerTransitCanvasEl.setAttribute("aria-label", transitSegments.map(function (s) {
+            return s.route + " (" + s.stopName + "): " + s.entries.map(function (e) { return e.label; }).join(", ");
+        }).join(". "));
 
         footerWeatherCanvasEl.style.display = "";
         footerWeatherCanvasEl.style.left = "32px";

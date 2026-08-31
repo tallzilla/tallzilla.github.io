@@ -324,6 +324,51 @@
         ], contentWidth);
     }
 
+    // Renders the transit box: one line per route, each holding as many
+    // upcoming departures as fit without wrapping onto a second line --
+    // unlike renderFooter's word-wrap, this stops adding entries the moment
+    // the next one would overflow contentWidth rather than wrapping them
+    // onto extra lines, so the box reads as "however many happen to fit"
+    // instead of a ragged multi-line dump.
+    //
+    // segments: [{ route, stopName, entries: [{ time: <ISO string>, label
+    // }] }, ...], baked ahead of time by generate-transit.js. Entries are
+    // filtered here against `now` (the actual render/capture moment, not
+    // generate-transit.js's bake time -- the frame can be captured a while
+    // after the data was baked) so a departure that's already passed by the
+    // time this page is actually rendered doesn't show up as a live
+    // prediction.
+    function renderTransitFooter(canvasEl, segments, contentWidth, now) {
+        var ctx = canvasEl.getContext("2d");
+        var fontSize = 34;
+        var lineHeight = 48;
+        var font = "600 " + fontSize + "px " + FONT_FAMILY;
+        ctx.font = font;
+
+        var lines = (segments || []).map(function (segment) {
+            var prefix = segment.route + " (" + segment.stopName + "): ";
+            var upcoming = segment.entries.filter(function (e) {
+                return new Date(e.time) > now;
+            });
+            if (upcoming.length === 0) {
+                return prefix + "no buses expected soon";
+            }
+            var line = prefix + upcoming[0].label;
+            for (var i = 1; i < upcoming.length; i++) {
+                var candidate = line + ", " + upcoming[i].label;
+                if (ctx.measureText(candidate).width > contentWidth) {
+                    break;
+                }
+                line = candidate;
+            }
+            return line;
+        });
+
+        drawBox(canvasEl, [
+            { font: font, lineHeight: lineHeight, marginTop: 0, lines: lines }
+        ], contentWidth);
+    }
+
     // Renders a small black-text-with-white-stroke timestamp directly onto
     // a transparent canvas -- no white box, unlike the header/footer, since
     // the point is for it to sit quietly in the corner over the artwork
@@ -362,6 +407,7 @@
     window.FRAME_TEXT_CANVAS = {
         renderHeader: renderHeader,
         renderFooter: renderFooter,
+        renderTransitFooter: renderTransitFooter,
         renderWeatherCard: renderWeatherCard,
         renderTimestamp: renderTimestamp
     };
