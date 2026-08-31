@@ -56,24 +56,22 @@ async function fetchStopMonitoring(stopCode) {
 // response shape for one stop/route so real parsing can be written against
 // the actual field names instead of a guess.
 async function debugProbeStopTimetable(stopCode, route) {
-    const variants = [
-        "https://api.511.org/transit/StopTimetable?api_key=" + encodeURIComponent(API_KEY) +
-            "&operatorref=AC&monitoringref=" + encodeURIComponent(stopCode) +
-            "&lineref=" + encodeURIComponent(route) + "&format=json",
-        "https://api.511.org/transit/stoptimetable?api_key=" + encodeURIComponent(API_KEY) +
-            "&operatorref=AC&monitoringref=" + encodeURIComponent(stopCode) + "&format=json",
-        "https://api.511.org/transit/timetable?api_key=" + encodeURIComponent(API_KEY) +
-            "&operator_id=AC&line_id=" + encodeURIComponent(route) + "&format=json"
-    ];
-    for (const url of variants) {
-        try {
-            const res = await fetch(url, { headers: { "Accept": "application/json", "User-Agent": "tallzilla-frame/1.0" } });
-            const text = await res.text();
-            console.error("DEBUG probe " + url.replace(API_KEY, "REDACTED") + " -> status=" + res.status + " body[0:500]=" + text.slice(0, 500));
-        } catch (err) {
-            console.error("DEBUG probe " + url.replace(API_KEY, "REDACTED") + " -> threw: " + err.message);
-        }
-    }
+    const url = "https://api.511.org/transit/timetable?api_key=" + encodeURIComponent(API_KEY) +
+        "&operator_id=AC&line_id=" + encodeURIComponent(route) + "&format=json";
+    const res = await fetch(url, { headers: { "Accept": "application/json" } });
+    const json = await res.json();
+    const frameNames = Object.keys(json.Content || {});
+    console.error("DEBUG timetable " + route + " top-level Content keys: " + JSON.stringify(frameNames));
+    const hasStop = JSON.stringify(json).includes('"' + stopCode + '"');
+    console.error("DEBUG timetable " + route + " mentions stopCode " + stopCode + ": " + hasStop);
+    // Look specifically for a TimetableFrame (has the actual per-journey
+    // passing times) and a ServiceCalendarFrame (which days each journey
+    // runs), since ServiceFrame alone (seen in the first probe) only
+    // described route/pattern shape, not times.
+    const tf = json.Content && json.Content.TimetableFrame;
+    console.error("DEBUG timetable " + route + " TimetableFrame sample: " + JSON.stringify(tf).slice(0, 3000));
+    const scf = json.Content && json.Content.ServiceCalendarFrame;
+    console.error("DEBUG timetable " + route + " ServiceCalendarFrame sample: " + JSON.stringify(scf).slice(0, 1500));
 }
 
 // Returns { route, stopName, entries: [{ time: <ISO string>, label }] } --
