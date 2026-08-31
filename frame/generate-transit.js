@@ -54,7 +54,13 @@ async function fetchStopMonitoring(stopCode) {
         throw new Error("511.org request failed for stop " + stopCode + ": " + res.status);
     }
     const json = await res.json();
-    return json.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit || [];
+    const visits = json.ServiceDelivery.StopMonitoringDelivery.MonitoredStopVisit || [];
+    console.error("DEBUG stop " + stopCode + ": " + visits.length + " total visits, lines=" +
+        JSON.stringify(visits.map(function (v) {
+            return v.MonitoredVehicleJourney.LineRef + "@" +
+                (v.MonitoredVehicleJourney.MonitoredCall.ExpectedArrivalTime || v.MonitoredVehicleJourney.MonitoredCall.AimedArrivalTime);
+        })));
+    return visits;
 }
 
 function buildStopSegment(stopCode, route, visits, now) {
