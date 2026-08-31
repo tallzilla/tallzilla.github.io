@@ -56,22 +56,23 @@ async function fetchStopMonitoring(stopCode) {
 // response shape for one stop/route so real parsing can be written against
 // the actual field names instead of a guess.
 async function debugProbeStopTimetable(stopCode, route) {
-    const url = "https://api.511.org/transit/timetable?api_key=" + encodeURIComponent(API_KEY) +
+    const sfUrl = "https://api.511.org/transit/timetable?api_key=" + encodeURIComponent(API_KEY) +
         "&operator_id=AC&line_id=" + encodeURIComponent(route) + "&format=json";
-    const res = await fetch(url, { headers: { "Accept": "application/json" } });
-    const json = await res.json();
-    const frameNames = Object.keys(json.Content || {});
-    console.error("DEBUG timetable " + route + " top-level Content keys: " + JSON.stringify(frameNames));
-    const hasStop = JSON.stringify(json).includes('"' + stopCode + '"');
-    console.error("DEBUG timetable " + route + " mentions stopCode " + stopCode + ": " + hasStop);
-    // Look specifically for a TimetableFrame (has the actual per-journey
-    // passing times) and a ServiceCalendarFrame (which days each journey
-    // runs), since ServiceFrame alone (seen in the first probe) only
-    // described route/pattern shape, not times.
-    const tf = json.Content && json.Content.TimetableFrame;
-    console.error("DEBUG timetable " + route + " TimetableFrame sample: " + JSON.stringify(tf).slice(0, 3000));
-    const scf = json.Content && json.Content.ServiceCalendarFrame;
-    console.error("DEBUG timetable " + route + " ServiceCalendarFrame sample: " + JSON.stringify(scf).slice(0, 1500));
+    const sfJson = await (await fetch(sfUrl, { headers: { "Accept": "application/json" } })).json();
+    const sf = sfJson.Content && sfJson.Content.ServiceFrame;
+    console.error("DEBUG timetable " + route + " ServiceFrame top-level keys: " + JSON.stringify(Object.keys(sf || {})));
+    console.error("DEBUG timetable " + route + " ServiceFrame non-routes sample: " +
+        JSON.stringify(Object.assign({}, sf, { routes: "[omitted]" })).slice(0, 2000));
+
+    const stopsUrl = "https://api.511.org/transit/stops?api_key=" + encodeURIComponent(API_KEY) +
+        "&operator_id=AC&format=json";
+    const stopsRes = await fetch(stopsUrl, { headers: { "Accept": "application/json" } });
+    const stopsText = await stopsRes.text();
+    console.error("DEBUG stops endpoint status=" + stopsRes.status + " body[0:1500]=" + stopsText.slice(0, 1500));
+    if (stopsRes.ok) {
+        const hasStopCode = stopsText.includes('"' + stopCode + '"');
+        console.error("DEBUG stops endpoint mentions stopCode " + stopCode + ": " + hasStopCode);
+    }
 }
 
 // Returns { route, stopName, entries: [{ time: <ISO string>, label }] } --
