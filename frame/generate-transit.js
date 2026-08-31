@@ -160,7 +160,10 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
     const todayDateStr = now.toLocaleDateString("en-CA", { timeZone: TIME_ZONE }); // "YYYY-MM-DD"
 
     const entries = [];
+    let framesTotal = 0, framesMatchedDay = 0, journeysTotal = 0, callsMatchedStop = 0;
+    const seenStopRefs = new Set();
     asArray(content.TimetableFrame).forEach(function (frame) {
+        framesTotal++;
         const cond = frame.frameValidityConditions && frame.frameValidityConditions.AvailabilityCondition;
         if (!cond) return;
 
@@ -168,12 +171,20 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
         if (!dayTypeRefs.some(function (ref) { return activeDayTypes.indexOf(ref) !== -1; })) return;
         if (cond.FromDate && new Date(cond.FromDate) > now) return;
         if (cond.ToDate && new Date(cond.ToDate) < now) return;
+        framesMatchedDay++;
 
         asArray(frame.vehicleJourneys && frame.vehicleJourneys.ServiceJourney).forEach(function (journey) {
+            journeysTotal++;
+            asArray(journey.calls && journey.calls.Call).forEach(function (c) {
+                if (c.ScheduledStopPointRef && c.ScheduledStopPointRef.ref) {
+                    seenStopRefs.add(c.ScheduledStopPointRef.ref);
+                }
+            });
             const call = asArray(journey.calls && journey.calls.Call).find(function (c) {
                 return c.ScheduledStopPointRef && c.ScheduledStopPointRef.ref === stopCode;
             });
             if (!call || !call.Departure || !call.Departure.Time) return;
+            callsMatchedStop++;
 
             const time = zonedTimeToUtc(todayDateStr, call.Departure.Time, TIME_ZONE);
             if (time > now && time <= windowEnd) {
@@ -181,6 +192,13 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
             }
         });
     });
+    console.error("DEBUG scheduled stopCode=" + stopCode + " variant=" + variant +
+        " activeDayTypes=" + JSON.stringify(activeDayTypes) +
+        " framesTotal=" + framesTotal + " framesMatchedDay=" + framesMatchedDay +
+        " journeysTotal=" + journeysTotal + " callsMatchedStop=" + callsMatchedStop +
+        " entries=" + entries.length +
+        " stopCodeInSeenRefs=" + seenStopRefs.has(stopCode) +
+        " seenStopRefsSample=" + JSON.stringify(Array.from(seenStopRefs).slice(0, 15)));
     return entries;
 }
 
