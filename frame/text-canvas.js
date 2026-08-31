@@ -84,6 +84,24 @@
         return clamped;
     }
 
+    // A line is either a plain string (drawn in the block's font, the
+    // common case) or an array of { text, font } runs for a line that
+    // mixes weights (e.g. renderTransitFooter's bold-live/normal-scheduled
+    // departures) -- drawBox itself doesn't need to care which shape it got.
+    function drawLine(ctx, blockFont, line, x, y) {
+        if (typeof line === "string") {
+            ctx.font = blockFont;
+            ctx.fillText(line, x, y);
+            return;
+        }
+        var curX = x;
+        line.forEach(function (run) {
+            ctx.font = run.font;
+            ctx.fillText(run.text, curX, y);
+            curX += ctx.measureText(run.text).width;
+        });
+    }
+
     // blocks: [{ font, lineHeight, marginTop, lines: [...] }, ...]
     // Draws a white box with a black border and the given text blocks
     // top-to-bottom, sized to exactly fit the widest line / total line
@@ -105,8 +123,9 @@
         var lastBlock = blocks[blocks.length - 1];
         var lastLine = lastBlock.lines[lastBlock.lines.length - 1];
         var measureCtx = canvasEl.getContext("2d");
+        var lastLineText = typeof lastLine === "string" ? lastLine : lastLine.map(function (r) { return r.text; }).join("");
         measureCtx.font = lastBlock.font;
-        var metrics = measureCtx.measureText(lastLine);
+        var metrics = measureCtx.measureText(lastLineText);
         var tightLastLineHeight = (metrics.actualBoundingBoxAscent || 0) + (metrics.actualBoundingBoxDescent || 0);
         contentHeight -= Math.max(0, lastBlock.lineHeight - tightLastLineHeight);
 
@@ -128,9 +147,8 @@
         var y = BORDER + PADDING;
         blocks.forEach(function (block) {
             y += block.marginTop || 0;
-            ctx.font = block.font;
             block.lines.forEach(function (line) {
-                ctx.fillText(line, BORDER + PADDING, y);
+                drawLine(ctx, block.font, line, BORDER + PADDING, y);
                 y += block.lineHeight;
             });
         });
@@ -331,19 +349,28 @@
     // onto extra lines, so the box reads as "however many happen to fit"
     // instead of a ragged multi-line dump.
     //
-    // segments: [{ route, stopName, entries: [{ time: <ISO string>, label
-    // }] }, ...], baked ahead of time by generate-transit.js. Entries are
+    // segments: [{ route, stopName, entries: [{ time: <ISO string>, label,
+    // live }] }, ...], baked ahead of time by generate-transit.js (live
+    // entries from real-time StopMonitoring, non-live ones filled in from
+    // the published schedule -- see that file's top comment). Entries are
     // filtered here against `now` (the actual render/capture moment, not
     // generate-transit.js's bake time -- the frame can be captured a while
     // after the data was baked) so a departure that's already passed by the
-    // time this page is actually rendered doesn't show up as a live
-    // prediction.
+    // time this page is actually rendered doesn't show up as a prediction.
+    // Live departures draw bold, scheduled ones at normal weight, so it's
+    // visually clear which times reflect an actually-tracked bus.
     function renderTransitFooter(canvasEl, segments, contentWidth, now) {
         var ctx = canvasEl.getContext("2d");
         var fontSize = 34;
         var lineHeight = 48;
-        var font = "600 " + fontSize + "px " + FONT_FAMILY;
-        ctx.font = font;
+        var baseFont = "600 " + fontSize + "px " + FONT_FAMILY;
+        var liveFont = "700 " + fontSize + "px " + FONT_FAMILY;
+        var scheduledFont = "400 " + fontSize + "px " + FONT_FAMILY;
+
+        function measure(font, text) {
+            ctx.font = font;
+            return ctx.measureText(text).width;
+        }
 
         var lines = (segments || []).map(function (segment) {
             var prefix = segment.route + " (" + segment.stopName + "): ";
@@ -353,19 +380,26 @@
             if (upcoming.length === 0) {
                 return prefix + "no buses expected soon";
             }
-            var line = prefix + upcoming[0].label;
-            for (var i = 1; i < upcoming.length; i++) {
-                var candidate = line + ", " + upcoming[i].label;
-                if (ctx.measureText(candidate).width > contentWidth) {
+
+            var runs = [{ text: prefix, font: baseFont }];
+            var width = measure(baseFont, prefix);
+            for (var i = 0; i < upcoming.length; i++) {
+                var entry = upcoming[i];
+                var entryFont = entry.live ? liveFont : scheduledFont;
+                var sep = i === 0 ? "" : ", ";
+                var addWidth = (sep ? measure(baseFont, sep) : 0) + measure(entryFont, entry.label);
+                if (i > 0 && width + addWidth > contentWidth) {
                     break;
                 }
-                line = candidate;
+                if (sep) runs.push({ text: sep, font: baseFont });
+                runs.push({ text: entry.label, font: entryFont });
+                width += addWidth;
             }
-            return line;
+            return runs;
         });
 
         drawBox(canvasEl, [
-            { font: font, lineHeight: lineHeight, marginTop: 0, lines: lines }
+            { font: baseFont, lineHeight: lineHeight, marginTop: 0, lines: lines }
         ], contentWidth);
     }
 

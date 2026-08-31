@@ -93,7 +93,8 @@ function buildLiveEntries(visits, route, windowEnd) {
         const time = new Date(call.ExpectedArrivalTime || call.AimedArrivalTime);
         return {
             time: time,
-            label: formatTime12h(time) + (variant ? "(" + variant + ")" : "")
+            label: formatTime12h(time) + (variant ? "(" + variant + ")" : ""),
+            live: true
         };
     }).filter(function (entry) {
         return entry.time <= windowEnd;
@@ -176,7 +177,7 @@ function buildScheduledEntries(timetableJson, stopCode, variant, now, windowEnd)
 
             const time = zonedTimeToUtc(todayDateStr, call.Departure.Time, TIME_ZONE);
             if (time > now && time <= windowEnd) {
-                entries.push({ time: time, label: formatTime12h(time) + (variant ? "(" + variant + ")" : "") });
+                entries.push({ time: time, label: formatTime12h(time) + (variant ? "(" + variant + ")" : ""), live: false });
             }
         });
     });
@@ -218,7 +219,7 @@ async function buildStopSegment(stop, visits, now) {
         route: stop.route,
         stopName: stop.stopName,
         entries: allEntries.map(function (e) {
-            return { time: e.time.toISOString(), label: e.label };
+            return { time: e.time.toISOString(), label: e.label, live: e.live };
         })
     };
 }
