@@ -4,4 +4,4 @@
 // and fit as many as the box's actual width allows -- see
 // renderTransitFooter in text-canvas.js.
 // Do not edit by hand — it's overwritten on the next scheduled run.
-window.FRAME_TRANSIT = [{"route":"12","stopName":"Gilman & Curtis","entries":[{"time":"2026-09-01T06:51:24.000Z","label":"11:51","live":true},{"time":"2026-09-01T07:22:03.000Z","label":"12:22","live":true}]},{"route":"72","stopName":"San Pablo & Gilman","entries":[{"time":"2026-09-01T06:54:19.000Z","label":"11:54","live":true},{"time":"2026-09-01T07:06:36.000Z","label":"12:06(M)","live":true},{"time":"2026-09-01T07:20:18.000Z","label":"12:20","live":true},{"time":"2026-09-01T07:35:09.000Z","label":"12:35(M)","live":false},{"time":"2026-09-01T08:05:09.000Z","label":"1:05(M)","live":false}]}];
+window.FRAME_TRANSIT = [{"route":"12","stopName":"Gilman & Curtis","entries":[{"time":"2026-09-01T07:22:05.000Z","label":"12:22","live":true}]},{"route":"72","stopName":"San Pablo & Gilman","entries":[{"time":"2026-09-01T07:09:48.000Z","label":"12:09(M)","live":true},{"time":"2026-09-01T07:20:22.000Z","label":"12:20","live":true},{"time":"2026-09-01T07:35:28.000Z","label":"12:35(M)","live":true}]}];
