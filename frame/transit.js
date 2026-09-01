@@ -4,4 +4,4 @@
 // and fit as many as the box's actual width allows -- see
 // renderTransitFooter in text-canvas.js.
 // Do not edit by hand — it's overwritten on the next scheduled run.
-window.FRAME_TRANSIT = [{"route":"12","stopName":"Gilman & Curtis","entries":[]},{"route":"72","stopName":"San Pablo & Gilman","entries":[{"time":"2026-09-01T07:35:17.000Z","label":"12:35(M)","live":true},{"time":"2026-09-01T08:05:03.000Z","label":"1:05(M)","live":true}]}];
+window.FRAME_TRANSIT = [{"route":"12","stopName":"Gilman & Curtis","entries":[]},{"route":"72","stopName":"San Pablo & Gilman","entries":[{"time":"2026-09-01T08:05:04.000Z","label":"1:05(M)","live":true}]}];
