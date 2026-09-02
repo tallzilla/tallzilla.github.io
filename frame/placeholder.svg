@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1200" viewBox="0 0 1600 1200">
-    <rect x="0" y="0" width="1600" height="1200" fill="#fff"/>
-    <rect x="24" y="24" width="1552" height="1152" fill="none" stroke="#000" stroke-width="4" stroke-dasharray="16 12"/>
-    <text x="800" y="580" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="40" fill="#000">Placeholder image</text>
-    <text x="800" y="632" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="26" fill="#000">Set "image" in frame/data.js to replace this</text>
-</svg>

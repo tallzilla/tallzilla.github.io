@@ -1,5 +1,1 @@
 bootstrap/
-
-# Python bytecode from frame/score-artwork.py
-__pycache__/
-*.pyc
